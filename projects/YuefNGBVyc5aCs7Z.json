@@ -1,6 +1,6 @@
 {
-  "id": "FGee2Rffy5CZODVa",
-  "name": "Onboarding - SDR Agent",
+  "id": "YuefNGBVyc5aCs7Z",
+  "name": "Prospect Demos",
   "icon": {
     "type": "icon",
     "value": "layers"
@@ -9,8 +9,8 @@
   "type": "team",
   "owner": {
     "type": "team",
-    "teamId": "FGee2Rffy5CZODVa",
-    "teamName": "Onboarding - SDR Agent"
+    "teamId": "YuefNGBVyc5aCs7Z",
+    "teamName": "Prospect Demos"
   },
   "variableStubs": []
 }
