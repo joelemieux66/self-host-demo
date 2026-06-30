@@ -1,0 +1,138 @@
+{
+  "id": "5dmOdqHgaCS2UukW",
+  "name": "Tool: KB lookup (n8n knowledge)",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b2000000-0000-4000-8000-000000000002",
+      "name": "KB Query Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        224
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "KBLGEFMAR7Y26lSV",
+          "name": "Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "outreach-kb",
+          "cachedResultName": "outreach-kb"
+        },
+        "prompt": "={{ $json.query }}",
+        "topK": 8,
+        "options": {
+          "pineconeNamespace": "n8n-knowledge"
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000003",
+      "name": "KB Pinecone",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        0
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "bdIGPcclXfSxFgf7",
+          "name": "Pinecone"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const docs = $input.all().map(i => i.json);\nconst text = docs.map(d => (d.document && d.document.pageContent) || d.pageContent || '').filter(Boolean).join('\\n\\n---\\n\\n');\nreturn [{ json: { kb: text || 'No relevant n8n knowledge found.' } }];"
+      },
+      "id": "b2000000-0000-4000-8000-000000000004",
+      "name": "Pack KB",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Workflow Input": {
+      "main": [
+        [
+          {
+            "node": "KB Pinecone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KB Query Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "KB Pinecone",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KB Pinecone": {
+      "main": [
+        [
+          {
+            "node": "Pack KB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "callerPolicy": "any",
+    "binaryMode": "separate"
+  },
+  "triggerCount": 0,
+  "versionId": "46becf74-1a54-4467-9dc3-1cfc98f09965",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": "HEcrJqQ0CssZz19u",
+  "isArchived": false,
+  "nodeGroups": []
+}

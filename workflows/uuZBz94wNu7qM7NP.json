@@ -1,0 +1,543 @@
+{
+  "id": "uuZBz94wNu7qM7NP",
+  "name": "Outreach — Sequence Poller",
+  "nodes": [
+    {
+      "id": "p0000000-0000-4000-8000-000000000001",
+      "name": "Every 5 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000002",
+      "name": "Get due",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HLjnYGPCMOiUUKAE",
+          "cachedResultName": "outreach_log"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "active"
+            },
+            {
+              "keyName": "nextActionAt",
+              "condition": "lte",
+              "keyValue": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "returnAll": true
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-0000000000c1",
+      "name": "Compose model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        220
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "KBLGEFMAR7Y26lSV",
+          "name": "Personal"
+        }
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000003",
+      "name": "Compose step",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an SDR sending a SHORT follow-up in an email sequence on behalf of n8n (a workflow-automation platform). Today is {{ $now.format('yyyy-MM-dd') }}.\n\nRecipient: {{ $json.contactName }} ({{ $json.contactRole }}) at {{ $json.company }}\nThis is follow-up number {{ $json.step + 1 }} in the sequence (1 = a brief, friendly bump referencing your first email; 2 = a final polite breakup / closing-the-loop email, a no-pressure last attempt).\nThe original email subject was: {{ $json.lastSubject }}\n\nWrite 40-80 words, warm and low-pressure, with one clear soft CTA (a quick 15-minute call). Do not repeat the original email; add a light new angle or gentle nudge.\n\nFormat your response EXACTLY as:\nSubject: <subject line>\n\n<the email body>\n\nClose with EXACTLY this signature:\nBest,\nJoe Lemieux\nSolutions Engineer, n8n\n\nFor follow-up 1 use the subject \"Re: {{ $json.lastSubject }}\". For follow-up 2 use a subject like \"Closing the loop\".",
+        "batching": {}
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000004",
+      "name": "Advance",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HLjnYGPCMOiUUKAE",
+          "cachedResultName": "outreach_log"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $('Get due').item.json.email }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "awaiting_approval",
+            "step": "={{ $('Get due').item.json.step + 1 }}",
+            "lastSubject": "={{ $('Compose step').item.json.text.split('\\n')[0].replace('Subject:','').trim() }}"
+          }
+        }
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000007",
+      "name": "Send step",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1260,
+        -120
+      ],
+      "webhookId": "a2222222-2222-4222-8222-222222222222",
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Get due').item.json.email }}",
+        "subject": "={{ $('Compose step').item.json.text.split('\\n')[0].replace('Subject:','').trim() }}",
+        "emailType": "text",
+        "message": "={{ $('Compose step').item.json.text.substring($('Compose step').item.json.text.indexOf('\\n') + 1).trim() }}",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wFPLCtotR4QOuSRy",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000008",
+      "name": "Reschedule",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1480,
+        -120
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HLjnYGPCMOiUUKAE",
+          "cachedResultName": "outreach_log"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $('Get due').item.json.email }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "active",
+            "nextActionAt": "={{ $now.plus({ minutes: 5 }).toISO() }}"
+          }
+        }
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000010",
+      "name": "More touches?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        360,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "mt1",
+              "leftValue": "={{ $('Get due').item.json.step }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000011",
+      "name": "Escalate (no response)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        620,
+        260
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "joe.lemieux@n8n.io",
+        "subject": "=📭 No response: {{ $('Get due').item.json.contactName }} at {{ $('Get due').item.json.company }}",
+        "emailType": "text",
+        "message": "=The full outreach sequence completed with no reply.\n\nCompany: {{ $('Get due').item.json.company }}\nContact: {{ $('Get due').item.json.contactName }} ({{ $('Get due').item.json.contactRole }})\nEmail: {{ $('Get due').item.json.email }}\n\nAll follow-ups were sent and the prospect did not respond. Consider another channel (LinkedIn, phone) or re-engaging later.",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wFPLCtotR4QOuSRy",
+          "name": "Gmail"
+        }
+      },
+      "webhookId": "c5a37e72-f1b8-4c31-9323-5eb638a9e2f5"
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000012",
+      "name": "Mark no_response",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        840,
+        260
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HLjnYGPCMOiUUKAE",
+          "cachedResultName": "outreach_log"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $('Get due').item.json.email }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "no_response"
+          }
+        }
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000005",
+      "name": "Request approval",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        840,
+        0
+      ],
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "joe.lemieux@n8n.io",
+        "subject": "=Approve follow-up #{{ $('Get due').item.json.step + 1 }} to {{ $('Get due').item.json.contactName }} at {{ $('Get due').item.json.company }}?",
+        "message": "=Please review and approve this sequence follow-up:\n\n{{ $('Compose step').item.json.text }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 48
+            }
+          }
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wFPLCtotR4QOuSRy",
+          "name": "Gmail"
+        }
+      },
+      "webhookId": "4e4854ea-bbab-4ca0-b1cf-441d7853c2ca"
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000006",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "apv1",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "p0000000-0000-4000-8000-000000000009",
+      "name": "Mark stopped",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1260,
+        120
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HLjnYGPCMOiUUKAE",
+          "cachedResultName": "outreach_log"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $('Get due').item.json.email }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "stopped"
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 5 min": {
+      "main": [
+        [
+          {
+            "node": "Get due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Compose step",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose step": {
+      "main": [
+        [
+          {
+            "node": "Advance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send step": {
+      "main": [
+        [
+          {
+            "node": "Reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get due": {
+      "main": [
+        [
+          {
+            "node": "More touches?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "More touches?": {
+      "main": [
+        [
+          {
+            "node": "Compose step",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Escalate (no response)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalate (no response)": {
+      "main": [
+        [
+          {
+            "node": "Mark no_response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advance": {
+      "main": [
+        [
+          {
+            "node": "Request approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request approval": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Send step",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "zyp7cVplnCezN8OF"
+  },
+  "triggerCount": 1,
+  "versionId": "f217d182-c6e7-41da-a309-578f01c1726b",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": null,
+  "isArchived": true,
+  "nodeGroups": []
+}

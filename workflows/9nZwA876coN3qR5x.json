@@ -1,8 +1,20 @@
 {
   "id": "9nZwA876coN3qR5x",
-  "name": "Tool: Research company",
+  "name": "Research Agent",
   "nodes": [
     {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "company"
+            },
+            {
+              "name": "context"
+            }
+          ]
+        }
+      },
       "id": "a1b2c3d4-0001-4a01-8b01-000000000001",
       "name": "Workflow Input",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
@@ -10,40 +22,26 @@
       "position": [
         0,
         0
-      ],
-      "parameters": {
-        "inputSource": "workflowInputs",
-        "workflowInputs": {
-          "values": [
-            {
-              "name": "company",
-              "type": "string"
-            },
-            {
-              "name": "context",
-              "type": "string"
-            }
-          ]
-        }
-      }
+      ]
     },
     {
-      "id": "a1b2c3d4-0001-4a01-8b01-000000000002",
-      "name": "OpenAI Chat Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.3,
-      "position": [
-        240,
-        220
-      ],
       "parameters": {
         "model": {
           "__rl": true,
           "mode": "id",
           "value": "gpt-4o"
         },
+        "builtInTools": {},
         "options": {}
       },
+      "id": "a1b2c3d4-0001-4a01-8b01-000000000002",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        192
+      ],
       "credentials": {
         "openAiApi": {
           "id": "KBLGEFMAR7Y26lSV",
@@ -52,16 +50,7 @@
       }
     },
     {
-      "id": "a1b2c3d4-0001-4a01-8b01-000000000005",
-      "name": "Return",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        820,
-        0
-      ],
       "parameters": {
-        "mode": "manual",
         "assignments": {
           "assignments": [
             {
@@ -73,56 +62,82 @@
             {
               "id": "f1000000-0000-4000-8000-000000000002",
               "name": "research",
-              "value": "={{ $json.text }}",
+              "value": "={{ $json.output }}",
               "type": "string"
             }
           ]
         },
         "options": {}
-      }
+      },
+      "id": "a1b2c3d4-0001-4a01-8b01-000000000005",
+      "name": "Return",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        0
+      ]
     },
     {
-      "id": "a1b2c3d4-0001-4a01-8b01-000000000006",
-      "name": "Tavily HTTP",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        240,
-        0
-      ],
       "parameters": {
-        "method": "POST",
-        "url": "https://api.tavily.com/search",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ query: $json.company + ' - company overview, size, headcount, funding, tech stack, recent news, operations', search_depth: 'advanced', max_results: 6, include_answer: true }) }}"
-      },
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "q3eXv9WbJKklYbp2",
-          "name": "Tavily (Header Auth)"
+        "promptType": "define",
+        "text": "=Research the company \"{{ $('Workflow Input').item.json.company }}\"{{ $('Workflow Input').item.json.context ? ' — context: ' + $('Workflow Input').item.json.context : '' }} for a B2B sales team, then write the brief.",
+        "options": {
+          "systemMessage": "You are a B2B research analyst. Today is {{ $now.format('yyyy-MM-dd') }}.\n\nResearch the target company using the web search tool. Run MULTIPLE focused searches (company overview & size/headcount, tech stack & tooling, recent news & funding, hiring/operations signals) rather than one broad query. Base every statement ONLY on returned search results; if something is unknown, write \"unknown\". Never fabricate.\n\nProduce a tight markdown brief with exactly these sections: ## Overview, ## Size & Industry, ## Tech & Tooling, ## Recent News & Signals, ## Sources (list the result URLs you used). No preamble, no closing remarks.",
+          "maxIterations": 15
         }
       },
+      "id": "a1b2c3d4-0001-4a01-8b01-00000000000a",
+      "name": "Research Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        192,
+        0
+      ],
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000
     },
     {
-      "id": "a1b2c3d4-0001-4a01-8b01-000000000007",
-      "name": "Summarize Research",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.9,
-      "position": [
-        480,
-        0
-      ],
       "parameters": {
-        "promptType": "define",
-        "text": "=Summarize the following web search results about {{ $('Workflow Input').item.json.company }} into a tight markdown brief.\n\nSearch results (JSON):\n{{ JSON.stringify($json) }}\n\nWrite these sections: ## Overview, ## Size & Industry, ## Tech & Tooling, ## Recent News & Signals, ## Sources (list the result URLs). Only use facts present in the results; if something is unknown, write 'unknown'. No preamble."
-      }
+        "description": "Search the public web for current information about a company — size/headcount, industry, tech stack, recent news, funding, hiring and operations signals. Input: one focused search query string. Returns raw search results as JSON text. Call it multiple times with different queries to build a complete picture.",
+        "workflowId": {
+          "__rl": true,
+          "value": "inYhnct4uHhuMrpA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/inYhnct4uHhuMrpA",
+          "cachedResultName": "Onboarding - SDR Agent — Tool: Web search (Tavily)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI('query', 'A single focused web search query, for example: Acme Corp employee count, or Acme Corp tech stack', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "a1b2c3d4-0001-4a01-8b01-00000000000b",
+      "name": "Search the web",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        192
+      ]
     }
   ],
   "connections": {
@@ -130,29 +145,7 @@
       "main": [
         [
           {
-            "node": "Tavily HTTP",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Tavily HTTP": {
-      "main": [
-        [
-          {
-            "node": "Summarize Research",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Summarize Research": {
-      "main": [
-        [
-          {
-            "node": "Return",
+            "node": "Research Agent",
             "type": "main",
             "index": 0
           }
@@ -163,8 +156,30 @@
       "ai_languageModel": [
         [
           {
-            "node": "Summarize Research",
+            "node": "Research Agent",
             "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search the web": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Agent": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
             "index": 0
           }
         ]
@@ -172,16 +187,19 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "any",
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "67e0bc70-9e92-418d-a640-c77473f3f4af",
+  "versionId": "8d43a11c-7990-4ae4-998b-1f83a88e1070",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",
-    "teamName": "Onboarding - SDR Agent"
+    "teamName": "Onboarding - SDR Assistant"
   },
-  "parentFolderId": null,
+  "parentFolderId": "SMw55GkRI4QGSQpK",
   "isArchived": false,
   "nodeGroups": []
 }

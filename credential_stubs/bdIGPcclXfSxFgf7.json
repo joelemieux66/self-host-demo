@@ -1,0 +1,14 @@
+{
+  "id": "bdIGPcclXfSxFgf7",
+  "name": "Pinecone",
+  "type": "pineconeApi",
+  "data": {
+    "apiKey": ""
+  },
+  "ownedBy": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "isGlobal": false
+}

@@ -1,0 +1,116 @@
+{
+  "id": "inYhnct4uHhuMrpA",
+  "name": "Tool: Web search (Tavily)",
+  "nodes": [
+    {
+      "id": "b1000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000002",
+      "name": "Tavily HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: $json.query, search_depth: 'advanced', max_results: 6, include_answer: true }) }}",
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "q3eXv9WbJKklYbp2",
+          "name": "Tavily (Header Auth)"
+        }
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000003",
+      "name": "Return",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "wr1",
+              "name": "results",
+              "value": "={{ JSON.stringify($json) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Workflow Input": {
+      "main": [
+        [
+          {
+            "node": "Tavily HTTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily HTTP": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "callerPolicy": "any"
+  },
+  "triggerCount": 0,
+  "versionId": "443413cb-45c4-4db8-8236-d59353915a73",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": "HEcrJqQ0CssZz19u",
+  "isArchived": false,
+  "nodeGroups": []
+}

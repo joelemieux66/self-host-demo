@@ -4,17 +4,231 @@
   "nodes": [
     {
       "parameters": {
-        "options": {}
+        "public": true,
+        "options": {
+          "responseMode": "lastNode"
+        }
       },
       "id": "a1b2c3d4-0004-4a04-8b04-000000000001",
       "name": "Chat Trigger",
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.4,
       "position": [
-        0,
-        0
+        -656,
+        -336
       ],
       "webhookId": "69ad6eed-8dd8-484c-8552-09c28fa52bdc"
+    },
+    {
+      "parameters": {
+        "formTitle": "New Prospect Outreach",
+        "formDescription": "Submit a prospect to run the full outreach pipeline.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Company",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Contact Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Contact Role"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b0000000-0000-4000-8000-000000000001",
+      "name": "Form: New Prospect",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -384,
+        432
+      ],
+      "webhookId": "937d60f2-0fd4-4182-b175-a22546bc0da2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "nf1",
+              "name": "company",
+              "value": "={{ $json.Company }}",
+              "type": "string"
+            },
+            {
+              "id": "nf2",
+              "name": "contactName",
+              "value": "={{ $json['Contact Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "nf3",
+              "name": "contactRole",
+              "value": "={{ $json['Contact Role'] }}",
+              "type": "string"
+            },
+            {
+              "id": "nf4",
+              "name": "userText",
+              "value": "=Run full outreach for {{ $json['Contact Name'] }} ({{ $json['Contact Role'] }}) at {{ $json.Company }}.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b0000000-0000-4000-8000-000000000002",
+      "name": "Normalize Form",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "er1",
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": "error",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b0000000-0000-4000-8000-00000000000d",
+      "name": "Error request?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -128,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Demo: the assistant was asked to trigger an error. Firing a deliberate failure so the catch-all error handler runs."
+      },
+      "id": "b0000000-0000-4000-8000-00000000000e",
+      "name": "Cause error",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -464
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "MmQma4WuSZJ0bXQu",
+          "mode": "list",
+          "cachedResultName": "Outreach Pipeline (async)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userText": "={{ $json.userText || $json.chatInput }}",
+            "sessionId": "={{ $json.sessionId || $json.company || 'outreach' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "userText",
+              "displayName": "userText",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "id": "b0000000-0000-4000-8000-000000000030",
+      "name": "Start outreach",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ack1",
+              "name": "output",
+              "value": "On it — I'm researching the company and drafting your outreach email now. You'll get it in your inbox to approve shortly.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b0000000-0000-4000-8000-000000000031",
+      "name": "Outreach ack",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=You are the n8n Outreach Concierge - a friendly, conversational sales assistant. Today is {{ $now.format('yyyy-MM-dd') }}. Use the conversation memory to track context across the whole session; never re-ask for something already provided.\n\nGuide the user naturally, one step at a time:\n1. Greet and make small talk as needed; answer general questions about how n8n helps using the n8n knowledge tool (never invent product claims).\n2. RESEARCH: when they want to research a company, ask for the company name if you do not have it. Then call the Research_company tool, which starts the research in the background. Relay its confirmation to the user (the full brief is generated, emailed to them, and saved for drafting). Do NOT fabricate research findings - you will not see the brief contents in this reply. If the user later asks to see the brief or the research findings, call the Show_brief tool (it returns the saved brief); if it says the brief is not ready, tell them it is still generating (about a minute) and to ask again shortly.\n3. PROSPECT: after presenting research, proactively ask whether there is a specific person they would like to email, and ask for that person's name and role/title.\n4. DRAFT: once you have the company and the contact's name and role, call the Draft_email tool (it automatically pulls the saved research brief - you do not need to pass the research text) and show the drafted email to the user. If it has only been a few seconds since research started, let them know the brief may still be generating.\n5. SEND: after showing the draft, ask if they would like edits or to send it. Only if they confirm sending, call the Send_for_approval tool with the drafted subject and body. Then tell them it has been queued and an approval email is waiting in their inbox; it sends once approved.\n\nIf the user says to bubble up a prospect (for example \"bubble up Joe Lemieux\"), call the Bubble_up tool with that name to send a short threaded follow-up nudge to that prospect on their original email thread.\n\nBe concise and helpful. Ask for missing details rather than guessing.",
+          "maxIterations": 25
+        }
+      },
+      "id": "c0000000-0000-4000-8000-000000000001",
+      "name": "Concierge",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        160,
+        -304
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
       "parameters": {
@@ -26,13 +240,13 @@
         "builtInTools": {},
         "options": {}
       },
-      "id": "a1b2c3d4-0004-4a04-8b04-000000000002",
-      "name": "OpenAI Chat Model",
+      "id": "c0000000-0000-4000-8000-000000000002",
+      "name": "Concierge Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        240,
-        240
+        16,
+        -128
       ],
       "credentials": {
         "openAiApi": {
@@ -43,47 +257,19 @@
     },
     {
       "parameters": {
-        "contextWindowLength": 50
-      },
-      "id": "a1b2c3d4-0004-4a04-8b04-000000000003",
-      "name": "Simple Memory",
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "typeVersion": 1.4,
-      "position": [
-        400,
-        240
-      ]
-    },
-    {
-      "parameters": {
-        "options": {
-          "systemMessage": "=You are an outreach orchestrator. Today is {{ $now.format('yyyy-MM-dd') }}. To draft outreach you need three things: the target COMPANY, and the RECIPIENT's NAME and ROLE/title at that company. If the user has not given the recipient's name and role, ask for them before drafting (you can still run research with just the company).\n\nWhen you have a company, run this pipeline using your tools:\n1. Research_company - gather live facts about the company.\n2. Analyze_ICP_fit - pass the company name and the FULL research brief text; get the fit score and automation opportunities.\n3. Draft_outreach_email - pass the company name, the recipient's name and role, the FULL research brief, and the FULL analysis; get a subject and body.\n\nThen reply with a clean summary:\n- A one-line fit verdict (tier + score out of 100).\n- 2-3 bullet highlights from the research.\n- The top automation opportunities for this company.\n- The drafted email (Subject + Body) inside a code block so it is easy to copy.\n\nAlways pass the actual research/analysis text between tools - never summarize it away before passing it on. If the user asks a follow-up about the same company, reuse what you already gathered instead of re-running everything.",
-          "maxIterations": 25
-        }
-      },
-      "id": "a1b2c3d4-0004-4a04-8b04-000000000004",
-      "name": "Outreach Agent",
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        320,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "description": "Research a company on the live web. Call this FIRST for any new prospect. Inputs: 'company' (the company name) and 'context' (optional - why we're reaching out, or any extra detail). Returns a factual markdown brief: overview, size, tech stack, recent news, and sources.",
+        "description": "Kick off research on a company. Returns immediately with a confirmation message; the full prospect brief is generated in the background, emailed to the user, and saved so it can be used for drafting. Input: the company name. Relay the returned confirmation to the user; do not invent findings.",
         "workflowId": {
           "__rl": true,
+          "value": "phM0daIPJdKz4hyz",
           "mode": "list",
-          "value": "9nZwA876coN3qR5x",
-          "cachedResultName": "Tool: Research company"
+          "cachedResultUrl": "/workflow/phM0daIPJdKz4hyz",
+          "cachedResultName": "Onboarding - SDR Agent — Tool: Research (async kickoff)"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
             "company": "={{ $fromAI('company', 'The company name to research', 'string') }}",
-            "context": "={{ $fromAI('context', 'Optional extra context about why we are reaching out, or any specifics to focus the research', 'string') }}"
+            "sessionId": "={{ $json.sessionId }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -91,100 +277,52 @@
               "id": "company",
               "displayName": "company",
               "required": false,
-              "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string"
+              "type": "string",
+              "canBeUsedToMatch": true
             },
             {
-              "id": "context",
-              "displayName": "context",
+              "id": "sessionId",
+              "displayName": "sessionId",
               "required": false,
-              "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string"
+              "type": "string",
+              "canBeUsedToMatch": true
             }
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": true
         }
       },
-      "id": "a1b2c3d4-0004-4a04-8b04-000000000005",
-      "name": "Research company",
+      "id": "c0000000-0000-4000-8000-000000000004",
+      "name": "Research_company",
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        560,
-        208
+        208,
+        128
       ]
     },
     {
       "parameters": {
-        "description": "Score a company against our ideal-customer profile (n8n automation buyers). Call this AFTER research. Inputs: 'company' (the company name) and 'research' (the FULL research brief text from Research_company). Returns JSON: fit_score (0-100), tier (A-D), size, tech stack, buying signals, automation opportunities, rationale.",
+        "description": "Draft a personalized outreach email (draft only, not sent). Call after research, once you have the contact's name and role. Inputs: company, contact_name, contact_role, research, analysis. Returns the drafted subject and body to show the user.",
         "workflowId": {
           "__rl": true,
-          "mode": "list",
-          "value": "j3sJQuYXRb3GCZqg",
-          "cachedResultName": "Tool: Analyze ICP fit"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "company": "={{ $fromAI('company', 'The company name', 'string') }}",
-            "research": "={{ $fromAI('research', 'The full research brief text produced by the Research_company tool', 'string') }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "company",
-              "displayName": "company",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string"
-            },
-            {
-              "id": "research",
-              "displayName": "research",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string"
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        }
-      },
-      "id": "a1b2c3d4-0004-4a04-8b04-000000000006",
-      "name": "Analyze ICP fit",
-      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
-      "typeVersion": 2.2,
-      "position": [
-        704,
-        208
-      ]
-    },
-    {
-      "parameters": {
-        "description": "Draft a personalized cold outreach email. Call this LAST, after research and analysis. Inputs: 'company', 'contact_name' (the recipient's full name), 'contact_role' (their job title/role at the company), 'research' (the full research brief), and 'analysis' (the full ICP analysis text). Returns a subject line and email body.",
-        "workflowId": {
-          "__rl": true,
-          "mode": "list",
           "value": "HKwH8BvaSdel1HGr",
-          "cachedResultName": "Tool: Draft outreach email"
+          "mode": "list",
+          "cachedResultUrl": "/workflow/HKwH8BvaSdel1HGr",
+          "cachedResultName": "Onboarding - SDR Agent — Writer Agent"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
             "company": "={{ $fromAI('company', 'The company name', 'string') }}",
-            "contact_name": "={{ $fromAI('contact_name', 'The full name of the person we are emailing', 'string') }}",
-            "contact_role": "={{ $fromAI('contact_role', 'The job title or role of the recipient at the company', 'string') }}",
-            "research": "={{ $fromAI('research', 'The full research brief text from Research_company', 'string') }}",
-            "analysis": "={{ $fromAI('analysis', 'The full ICP analysis text from Analyze_ICP_fit', 'string') }}"
+            "contact_name": "={{ $fromAI('contact_name', 'The recipient full name', 'string') }}",
+            "contact_role": "={{ $fromAI('contact_role', 'The recipient role or title', 'string') }}",
+            "research": "={{ $fromAI('research', 'The research brief text, or empty', 'string') }}",
+            "analysis": "={{ $fromAI('analysis', 'Any ICP analysis text, or empty', 'string') }}",
+            "require_approval": "false",
+            "sessionId": "={{ $json.sessionId }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -192,124 +330,603 @@
               "id": "company",
               "displayName": "company",
               "required": false,
-              "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string"
+              "type": "string",
+              "canBeUsedToMatch": true
             },
             {
               "id": "contact_name",
               "displayName": "contact_name",
               "required": false,
-              "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string"
+              "type": "string",
+              "canBeUsedToMatch": true
             },
             {
               "id": "contact_role",
               "displayName": "contact_role",
               "required": false,
-              "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string"
+              "type": "string",
+              "canBeUsedToMatch": true
             },
             {
               "id": "research",
               "displayName": "research",
               "required": false,
-              "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string"
+              "type": "string",
+              "canBeUsedToMatch": true
             },
             {
               "id": "analysis",
               "displayName": "analysis",
               "required": false,
-              "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string"
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "require_approval",
+              "displayName": "require_approval",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
             }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
+          ]
         }
       },
-      "id": "a1b2c3d4-0004-4a04-8b04-000000000007",
-      "name": "Draft outreach email",
+      "id": "c0000000-0000-4000-8000-000000000005",
+      "name": "Draft_email",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Look up n8n product knowledge, ICP/sales playbooks, and competitive positioning. Input: one focused query string. Use it to answer general questions about how n8n helps.",
+        "workflowId": {
+          "__rl": true,
+          "value": "5dmOdqHgaCS2UukW",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/5dmOdqHgaCS2UukW",
+          "cachedResultName": "Onboarding - SDR Agent — Tool: KB lookup (n8n knowledge)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI('query', 'A focused question about n8n value, capabilities, or fit', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      },
+      "id": "c0000000-0000-4000-8000-000000000006",
+      "name": "n8n knowledge",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Send the drafted email for approval (async) and START a follow-up sequence. Only call after the user has seen the draft and confirms sending. Inputs: subject, body, plus company, contact_name, contact_role for the prospect. It queues an approval email; on approval the opener sends and the prospect is enrolled in a follow-up sequence. Returns a queued confirmation.",
+        "workflowId": {
+          "__rl": true,
+          "value": "zW2yChcLVAozeSgh",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/zW2yChcLVAozeSgh",
+          "cachedResultName": "Onboarding - SDR Agent — Outreach — Queue Send (async)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "subject": "={{ $fromAI('subject', 'The subject line of the drafted email', 'string') }}",
+            "body": "={{ $fromAI('body', 'The full body of the drafted email', 'string') }}",
+            "company": "={{ $fromAI('company', 'The prospect company name', 'string') }}",
+            "contact_name": "={{ $fromAI('contact_name', 'The recipient full name', 'string') }}",
+            "contact_role": "={{ $fromAI('contact_role', 'The recipient role or title', 'string') }}",
+            "to_email": "joe.lemieux@n8n.io",
+            "session_id": "={{ $json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_name",
+              "displayName": "contact_name",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_role",
+              "displayName": "contact_role",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "to_email",
+              "displayName": "to_email",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      },
+      "id": "c0000000-0000-4000-8000-000000000007",
+      "name": "Send_for_approval",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}"
+      },
+      "id": "c0000000-0000-4000-8000-0000000003rd",
+      "name": "Concierge Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.6,
+      "position": [
+        160,
+        -128
+      ],
+      "credentials": {
+        "redis": {
+          "id": "QDGrL1RQpb0paDlJ",
+          "name": "Redis (in-cluster)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Send a threaded follow-up nudge ('bumping this up') to a prospect, as a reply on their original outreach email thread so it appears in the conversation. Use when the user says 'bubble up <name>'. Input: the prospect's name or company.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "53FQlfh110r1RRWd",
+          "cachedResultName": "Onboarding - SDR Agent — Tool: Bubble up (manual)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prospect": "={{ $fromAI('prospect', 'The prospect name or company to bubble up', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prospect",
+              "displayName": "prospect",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      },
+      "id": "c0000000-0000-4000-8000-00000000000b",
+      "name": "Bubble_up",
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
         848,
-        208
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Show the saved research brief for a company in the chat. Call this when the user asks to see the brief or the research findings. Input: the company name. Returns the brief text, or a 'not ready yet' message if research is still running.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "qDLTxxbQikXZypgK",
+          "cachedResultName": "Onboarding - SDR Agent — Tool: Show brief"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company": "={{ $fromAI('company', 'The company whose brief to show', 'string') }}",
+            "sessionId": "={{ $json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      },
+      "id": "c0000000-0000-4000-8000-00000000000c",
+      "name": "Show_brief",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "r1",
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": "reset",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "r2",
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": "start over",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "r3",
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": "clear session",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "r4",
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": "new session",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d0000000-0000-4000-8000-000000000001",
+      "name": "Reset?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -480,
+        -336
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "delete",
+        "deleteMode": "all"
+      },
+      "id": "d0000000-0000-4000-8000-000000000002",
+      "name": "Clear memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        -288,
+        -592
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}"
+      },
+      "id": "d0000000-0000-4000-8000-000000000003",
+      "name": "Reset memory store",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.6,
+      "position": [
+        -288,
+        -416
+      ],
+      "credentials": {
+        "redis": {
+          "id": "QDGrL1RQpb0paDlJ",
+          "name": "Redis (in-cluster)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rr1",
+              "name": "output",
+              "value": "Started a fresh session - I've cleared our previous conversation. What would you like to do?",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d0000000-0000-4000-8000-000000000004",
+      "name": "Reset reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -16,
+        -592
       ]
     }
   ],
   "connections": {
-    "Chat Trigger": {
+    "Form: New Prospect": {
       "main": [
         [
           {
-            "node": "Outreach Agent",
+            "node": "Normalize Form",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "OpenAI Chat Model": {
+    "Error request?": {
+      "main": [
+        [
+          {
+            "node": "Cause error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Concierge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start outreach": {
+      "main": [
+        [
+          {
+            "node": "Outreach ack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concierge Model": {
       "ai_languageModel": [
         [
           {
-            "node": "Outreach Agent",
+            "node": "Concierge",
             "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     },
-    "Simple Memory": {
+    "Research_company": {
+      "ai_tool": [
+        [
+          {
+            "node": "Concierge",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft_email": {
+      "ai_tool": [
+        [
+          {
+            "node": "Concierge",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n knowledge": {
+      "ai_tool": [
+        [
+          {
+            "node": "Concierge",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send_for_approval": {
+      "ai_tool": [
+        [
+          {
+            "node": "Concierge",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Form": {
+      "main": [
+        [
+          {
+            "node": "Start outreach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concierge Memory": {
       "ai_memory": [
         [
           {
-            "node": "Outreach Agent",
+            "node": "Concierge",
             "type": "ai_memory",
             "index": 0
           }
         ]
       ]
     },
-    "Research company": {
+    "Bubble_up": {
       "ai_tool": [
         [
           {
-            "node": "Outreach Agent",
+            "node": "Concierge",
             "type": "ai_tool",
             "index": 0
           }
         ]
       ]
     },
-    "Analyze ICP fit": {
+    "Show_brief": {
       "ai_tool": [
         [
           {
-            "node": "Outreach Agent",
+            "node": "Concierge",
             "type": "ai_tool",
             "index": 0
           }
         ]
       ]
     },
-    "Draft outreach email": {
-      "ai_tool": [
+    "Chat Trigger": {
+      "main": [
         [
           {
-            "node": "Outreach Agent",
-            "type": "ai_tool",
+            "node": "Reset?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset?": {
+      "main": [
+        [
+          {
+            "node": "Clear memory",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error request?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear memory": {
+      "main": [
+        [
+          {
+            "node": "Reset reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset memory store": {
+      "ai_memory": [
+        [
+          {
+            "node": "Clear memory",
+            "type": "ai_memory",
             "index": 0
           }
         ]
@@ -318,16 +935,20 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate"
+    "binaryMode": "separate",
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
-  "triggerCount": 1,
-  "versionId": "638c76f5-571e-4038-a9cc-09446b23b41a",
+  "triggerCount": 2,
+  "versionId": "ec4285c4-b3ec-4bb2-9607-eec90ce0f96e",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",
-    "teamName": "Onboarding - SDR Agent"
+    "teamName": "Onboarding - SDR Assistant"
   },
-  "parentFolderId": null,
+  "parentFolderId": "SMw55GkRI4QGSQpK",
   "isArchived": false,
   "nodeGroups": []
 }

@@ -1,0 +1,592 @@
+{
+  "id": "CzVIwt4vFRiJ7sn3",
+  "name": "CPI — Salesforce ⇄ Vendor Sync (Hero POC)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "c1000000-0000-4000-8000-000000000001",
+      "name": "▶ Run (demo)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m1",
+              "name": "Id",
+              "value": "0018Z00002NkAbc1",
+              "type": "string"
+            },
+            {
+              "id": "m2",
+              "name": "Name",
+              "value": "Queen City Logistics",
+              "type": "string"
+            },
+            {
+              "id": "m3",
+              "name": "Phone",
+              "value": "+1-704-555-0199",
+              "type": "string"
+            },
+            {
+              "id": "m4",
+              "name": "BillingCity",
+              "value": "Charlotte",
+              "type": "string"
+            },
+            {
+              "id": "m5",
+              "name": "BillingState",
+              "value": "NC",
+              "type": "string"
+            },
+            {
+              "id": "m6",
+              "name": "Type",
+              "value": "Customer - Direct",
+              "type": "string"
+            },
+            {
+              "id": "m7",
+              "name": "Industry",
+              "value": "Transportation",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000002",
+      "name": "Mock SF Account",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        64,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "accountUpdated"
+      },
+      "id": "c1000000-0000-4000-8000-000000000003",
+      "name": "SF: Account Updated",
+      "type": "n8n-nodes-base.salesforceTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "accountId",
+              "value": "={{ $json.Id }}",
+              "type": "string"
+            },
+            {
+              "id": "n2",
+              "name": "customerName",
+              "value": "={{ $json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "n3",
+              "name": "phone",
+              "value": "={{ $json.Phone }}",
+              "type": "string"
+            },
+            {
+              "id": "n4",
+              "name": "billingCity",
+              "value": "={{ $json.BillingCity }}",
+              "type": "string"
+            },
+            {
+              "id": "n5",
+              "name": "billingState",
+              "value": "={{ $json.BillingState }}",
+              "type": "string"
+            },
+            {
+              "id": "n6",
+              "name": "accountType",
+              "value": "={{ $json.Type }}",
+              "type": "string"
+            },
+            {
+              "id": "n7",
+              "name": "industry",
+              "value": "={{ $json.Industry }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000004",
+      "name": "Normalize Customer",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/anything",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ system: 'NetSuite', operation: 'upsertCustomer', accountId: $('Normalize Customer').item.json.accountId, name: $('Normalize Customer').item.json.customerName, city: $('Normalize Customer').item.json.billingCity, state: $('Normalize Customer').item.json.billingState, type: $('Normalize Customer').item.json.accountType }) }}",
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000005",
+      "name": "NetSuite: Upsert Customer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        544,
+        192
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/anything",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ system: 'alarm.com', operation: 'provisionMonitoring', accountId: $('Normalize Customer').item.json.accountId, name: $('Normalize Customer').item.json.customerName }) }}",
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000006",
+      "name": "alarm.com: Provision Monitoring",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        784,
+        192
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/anything",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ system: 'Genesis', operation: 'registerAccount', accountId: $('Normalize Customer').item.json.accountId }) }}",
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000007",
+      "name": "Genesis: Register Account",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1024,
+        192
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/anything",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ system: 'Mastermind', operation: 'upsertSqlRecord', accountId: $('Normalize Customer').item.json.accountId, name: $('Normalize Customer').item.json.customerName, netsuite_id: 'NS-' + $('Normalize Customer').item.json.accountId }) }}",
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000008",
+      "name": "Mastermind: Upsert (on-prem SQL API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1264,
+        192
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p1",
+              "name": "accountId",
+              "value": "={{ $('Normalize Customer').item.json.accountId }}",
+              "type": "string"
+            },
+            {
+              "id": "p2",
+              "name": "netsuite_id",
+              "value": "=NS-{{ $('Normalize Customer').item.json.accountId }}",
+              "type": "string"
+            },
+            {
+              "id": "p3",
+              "name": "alarmdotcom_id",
+              "value": "=ADC-{{ $('Normalize Customer').item.json.accountId }}",
+              "type": "string"
+            },
+            {
+              "id": "p4",
+              "name": "genesis_id",
+              "value": "=GEN-{{ $('Normalize Customer').item.json.accountId }}",
+              "type": "string"
+            },
+            {
+              "id": "p5",
+              "name": "mastermind_id",
+              "value": "=MM-{{ $('Normalize Customer').item.json.accountId }}",
+              "type": "string"
+            },
+            {
+              "id": "p6",
+              "name": "sync_status",
+              "value": "Success",
+              "type": "string"
+            },
+            {
+              "id": "p7",
+              "name": "last_synced",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000009",
+      "name": "Prepare SFDC Update",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1504,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "account",
+        "operation": "update",
+        "accountId": "={{ $('Prepare SFDC Update').item.json.accountId }}",
+        "updateFields": {
+          "description": "=CPI sync OK — NetSuite/alarm.com/Genesis/Mastermind synced {{ $('Prepare SFDC Update').item.json.last_synced }}"
+        }
+      },
+      "id": "c1000000-0000-4000-8000-000000000010",
+      "name": "SF: Update Account (sync status)",
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1.1,
+      "position": [
+        1744,
+        192
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1",
+              "name": "sync_status",
+              "value": "Failed",
+              "type": "string"
+            },
+            {
+              "id": "e2",
+              "name": "account_id",
+              "value": "={{ $('Normalize Customer').item.json.accountId }}",
+              "type": "string"
+            },
+            {
+              "id": "e3",
+              "name": "error_message",
+              "value": "={{ $json.error ? $json.error.message : 'Sync step failed' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000011",
+      "name": "Sync Error Handler",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/anything",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ alert: 'CPI sync failed', account_id: $json.account_id, error: $json.error_message, status: $json.sync_status }) }}",
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000012",
+      "name": "Alert (mock → Slack)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1152,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Trigger\n**Demo now:** the Manual trigger → *Mock SF Account* drives a sample Account so the flow runs without Salesforce creds.\n\n**For July 16:** enable **SF: Account Updated** (Salesforce Trigger) + add a Salesforce OAuth2 credential, then disable the Manual path. Both feed *Normalize Customer*.",
+        "height": 200,
+        "width": 460,
+        "color": 4
+      },
+      "id": "c1000000-0000-4000-8000-0000000000a1",
+      "name": "Sticky: Triggers",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Vendor + Mastermind sync (HTTP)\nEach call POSTs to a **mock endpoint (httpbin.org)** — swap the URL + add real auth for **NetSuite / alarm.com / Genesis** and the **Mastermind on-prem internal API**.\n\n**Stability:** every node has `retryOnFail` (3 tries, 5s) to absorb transient blips, and `onError: continueErrorOutput` → routes failures to the **Sync Error Handler** (no silent partial sync; the record is flagged).\n\n**To demo a failure live:** change one node's URL to `https://httpbin.org/status/503` → watch it retry, then route to the error handler + alert.",
+        "height": 240,
+        "width": 980,
+        "color": 5
+      },
+      "id": "c1000000-0000-4000-8000-0000000000a2",
+      "name": "Sticky: Vendor calls",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Write-back to Salesforce\n*Prepare SFDC Update* assembles the external IDs + `sync_status` + timestamp.\n\n**SF: Update Account** is the native Salesforce node — **disabled now** (so it passes through). Enable it + add the Salesforce credential for July 16 to write status back to the Account.",
+        "height": 220,
+        "width": 320,
+        "color": 4
+      },
+      "id": "c1000000-0000-4000-8000-0000000000a3",
+      "name": "Sticky: Write-back",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Error visibility\nAny vendor/Mastermind failure routes here: marks `sync_status = Failed`, captures the error, and fires an **Alert** (mock → swap for Slack).\n\nThere's also a separate **CPI — Error Handler (catch-all)** workflow (Error Trigger) that catches anything unhandled and includes the failed node name + a link to the execution.",
+        "height": 180,
+        "width": 540,
+        "color": 3
+      },
+      "id": "c1000000-0000-4000-8000-0000000000a4",
+      "name": "Sticky: Error visibility",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        864,
+        624
+      ]
+    }
+  ],
+  "connections": {
+    "▶ Run (demo)": {
+      "main": [
+        [
+          {
+            "node": "Mock SF Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock SF Account": {
+      "main": [
+        [
+          {
+            "node": "Normalize Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SF: Account Updated": {
+      "main": [
+        [
+          {
+            "node": "Normalize Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Customer": {
+      "main": [
+        [
+          {
+            "node": "NetSuite: Upsert Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NetSuite: Upsert Customer": {
+      "main": [
+        [
+          {
+            "node": "alarm.com: Provision Monitoring",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sync Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "alarm.com: Provision Monitoring": {
+      "main": [
+        [
+          {
+            "node": "Genesis: Register Account",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sync Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Genesis: Register Account": {
+      "main": [
+        [
+          {
+            "node": "Mastermind: Upsert (on-prem SQL API)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sync Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mastermind: Upsert (on-prem SQL API)": {
+      "main": [
+        [
+          {
+            "node": "Prepare SFDC Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sync Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare SFDC Update": {
+      "main": [
+        [
+          {
+            "node": "SF: Update Account (sync status)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync Error Handler": {
+      "main": [
+        [
+          {
+            "node": "Alert (mock → Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "triggerCount": 1,
+  "versionId": "b802e8b8-53b4-42e8-bfab-859d24547ea9",
+  "owner": {
+    "type": "team",
+    "teamId": "YuefNGBVyc5aCs7Z",
+    "teamName": "Prospect Demos"
+  },
+  "parentFolderId": null,
+  "isArchived": false,
+  "nodeGroups": []
+}

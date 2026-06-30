@@ -1,0 +1,357 @@
+{
+  "id": "53FQlfh110r1RRWd",
+  "name": "Tool: Bubble up (manual)",
+  "nodes": [
+    {
+      "id": "bu000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "prospect"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "bu000000-0000-4000-8000-000000000002",
+      "name": "Get rows",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HLjnYGPCMOiUUKAE",
+          "cachedResultName": "outreach_log"
+        },
+        "returnAll": true
+      }
+    },
+    {
+      "id": "bu000000-0000-4000-8000-000000000003",
+      "name": "Match prospect",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const q = (($('Workflow Input').first().json.prospect) || '').toString().toLowerCase().trim();\nconst rows = $input.all().map(i => i.json);\nconst hit = rows.find(r => String(r.contactName||'').toLowerCase().includes(q) || String(r.company||'').toLowerCase().includes(q) || String(r.email||'').toLowerCase().includes(q));\nreturn [{ json: hit ? Object.assign({ found: true }, hit) : { found: false, prospect: q } }];"
+      }
+    },
+    {
+      "id": "bu000000-0000-4000-8000-000000000004",
+      "name": "Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f1",
+              "leftValue": "={{ $json.found }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "bu000000-0000-4000-8000-000000000007",
+      "name": "Return ok",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        -120
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ro1",
+              "name": "result",
+              "value": "=Sent a threaded follow-up ('bumping this up') to {{ $('Match prospect').item.json.contactName }} at {{ $('Match prospect').item.json.company }} as a reply on the original email thread.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "bu000000-0000-4000-8000-000000000008",
+      "name": "Return notfound",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        120
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rn1",
+              "name": "result",
+              "value": "=No matching prospect found to bubble up. Try the contact name or company exactly as enrolled.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "bu000000-0000-4000-8000-000000000009",
+      "name": "Find thread",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -120
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "simple": true,
+        "filters": {
+          "q": "={{ 'subject:\"' + ($('Match prospect').item.json.lastSubject || '') + '\"' }}"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wFPLCtotR4QOuSRy",
+          "name": "Gmail"
+        }
+      },
+      "alwaysOutputData": true,
+      "webhookId": "c1c45a36-6476-4023-b45c-d10843d77520"
+    },
+    {
+      "id": "bu000000-0000-4000-8000-00000000000a",
+      "name": "Found thread?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1080,
+        -120
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ft1",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "bu000000-0000-4000-8000-00000000000b",
+      "name": "Reply on thread",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1300,
+        -200
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "reply",
+        "messageId": "={{ $('Find thread').item.json.id }}",
+        "emailType": "text",
+        "message": "=Hi {{ ($('Match prospect').item.json.contactName || 'there').split(' ')[0] }},\n\nJust floating this back to the top of your inbox in case it slipped by - would a quick 15-minute call be worth exploring? Happy to work around your calendar.\n\nBest,\nJoe Lemieux\nSolutions Engineer, n8n",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wFPLCtotR4QOuSRy",
+          "name": "Gmail"
+        }
+      },
+      "webhookId": "9d3097f4-74bb-4208-81d7-29b78745731f"
+    },
+    {
+      "id": "bu000000-0000-4000-8000-00000000000c",
+      "name": "Return nothread",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1300,
+        -20
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "nt1",
+              "name": "result",
+              "value": "=I couldn't find the original email thread for that prospect to reply to. Make sure the opener was sent first.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Workflow Input": {
+      "main": [
+        [
+          {
+            "node": "Get rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get rows": {
+      "main": [
+        [
+          {
+            "node": "Match prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match prospect": {
+      "main": [
+        [
+          {
+            "node": "Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Found?": {
+      "main": [
+        [
+          {
+            "node": "Find thread",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return notfound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find thread": {
+      "main": [
+        [
+          {
+            "node": "Found thread?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Found thread?": {
+      "main": [
+        [
+          {
+            "node": "Reply on thread",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return nothread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply on thread": {
+      "main": [
+        [
+          {
+            "node": "Return ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "callerPolicy": "any"
+  },
+  "triggerCount": 0,
+  "versionId": "b9ed4c73-d92f-4b85-91f7-b0b806225cb3",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": "HEcrJqQ0CssZz19u",
+  "isArchived": false,
+  "nodeGroups": []
+}

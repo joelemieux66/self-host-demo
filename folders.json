@@ -1,0 +1,44 @@
+{
+  "folders": [
+    {
+      "id": "HEcrJqQ0CssZz19u",
+      "name": "Tools",
+      "parentFolderId": null,
+      "homeProjectId": "FGee2Rffy5CZODVa",
+      "createdAt": "2026-06-25T20:42:07.062Z",
+      "updatedAt": "2026-06-25T20:42:07.062Z"
+    },
+    {
+      "id": "isUNima2tvEuPZbZ",
+      "name": "Errors",
+      "parentFolderId": null,
+      "homeProjectId": "FGee2Rffy5CZODVa",
+      "createdAt": "2026-06-25T20:42:35.887Z",
+      "updatedAt": "2026-06-25T20:42:35.887Z"
+    },
+    {
+      "id": "flYDbuk91AeKVa0h",
+      "name": "MCP",
+      "parentFolderId": null,
+      "homeProjectId": "FGee2Rffy5CZODVa",
+      "createdAt": "2026-06-25T20:42:49.065Z",
+      "updatedAt": "2026-06-25T20:42:49.065Z"
+    },
+    {
+      "id": "SMw55GkRI4QGSQpK",
+      "name": "Agents",
+      "parentFolderId": null,
+      "homeProjectId": "FGee2Rffy5CZODVa",
+      "createdAt": "2026-06-25T20:43:43.661Z",
+      "updatedAt": "2026-06-25T20:43:43.661Z"
+    },
+    {
+      "id": "TX0DoU7f1TCMqeY0",
+      "name": "Vectors",
+      "parentFolderId": null,
+      "homeProjectId": "FGee2Rffy5CZODVa",
+      "createdAt": "2026-06-25T20:43:58.168Z",
+      "updatedAt": "2026-06-25T20:43:58.168Z"
+    }
+  ]
+}

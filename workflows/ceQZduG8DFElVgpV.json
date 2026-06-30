@@ -1,0 +1,437 @@
+{
+  "id": "ceQZduG8DFElVgpV",
+  "name": "Outreach MCP Server",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "bearerAuth",
+        "path": "outreach"
+      },
+      "id": "f0000000-0000-4000-8000-000000000001",
+      "name": "Outreach MCP",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        352,
+        -16
+      ],
+      "webhookId": "135bfff0-fb45-4163-ab19-d6ce9fc5ee56",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "phqrpsZ7PYcoM67k",
+          "name": "Outreach MCP Bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Research a company on the live web (Tavily). Input: 'company' (name) and optional 'context'. Returns a factual markdown brief: overview, size, tech stack, recent news, sources.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "9nZwA876coN3qR5x",
+          "cachedResultName": "Research Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company": "={{ $fromAI('company', 'The company name to research', 'string') }}",
+            "context": "={{ $fromAI('context', 'Optional extra context or focus for the research', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "f0000000-0000-4000-8000-000000000002",
+      "name": "Research company",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Produce an RAG-grounded enriched brief for a company: live research + n8n knowledge-base value props + an automation-readiness score (0-100 + tier). Input: 'company'. Use this for a one-shot company assessment.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "a7Uf3Xk2kyn2YzBr",
+          "cachedResultName": "Tool: Enriched Brief (RAG)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company": "={{ $fromAI('company', 'The company name to assess', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "f0000000-0000-4000-8000-000000000003",
+      "name": "Enriched brief",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Score a company against the n8n ideal-customer profile. Input: 'company' and 'research' (the full research brief text). Returns JSON: fit_score, tier, size, tech stack, buying signals, automation opportunities, rationale.",
+        "workflowId": {
+          "__rl": true,
+          "value": "j3sJQuYXRb3GCZqg",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/j3sJQuYXRb3GCZqg",
+          "cachedResultName": "Onboarding - SDR Agent — Analyst Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company": "={{ $fromAI('company', 'The company name', 'string') }}",
+            "research": "={{ $fromAI('research', 'The full research brief text', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "research",
+              "displayName": "research",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "f0000000-0000-4000-8000-000000000004",
+      "name": "Analyze ICP fit",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Draft a personalized cold outreach email. Input: 'company', 'contact_name', 'contact_role', 'research' (brief text), 'analysis' (ICP analysis text). Returns a subject line and email body.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "HKwH8BvaSdel1HGr",
+          "cachedResultName": "Writer Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company": "={{ $fromAI('company', 'The company name', 'string') }}",
+            "contact_name": "={{ $fromAI('contact_name', 'The recipient full name', 'string') }}",
+            "contact_role": "={{ $fromAI('contact_role', 'The recipient job title/role', 'string') }}",
+            "research": "={{ $fromAI('research', 'The full research brief text', 'string') }}",
+            "analysis": "={{ $fromAI('analysis', 'The full ICP analysis text', 'string') }}",
+            "require_approval": "false"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "contact_name",
+              "displayName": "contact_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "contact_role",
+              "displayName": "contact_role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "research",
+              "displayName": "research",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "analysis",
+              "displayName": "analysis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "require_approval",
+              "displayName": "require_approval",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "f0000000-0000-4000-8000-000000000005",
+      "name": "Draft outreach email",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Outreach MCP Server\nExposes the outreach specialists as MCP tools at the MCP Server Trigger endpoint (path: `outreach`). Any MCP client (Claude, another n8n agent via MCP Client Tool, etc.) can call: research_company, enriched_brief, analyze_icp_fit, draft_outreach_email.\n\n**Production:** switch the trigger's Authentication to **Bearer Auth** and add a credential before exposing externally.",
+        "width": 760,
+        "color": 5
+      },
+      "id": "f0000000-0000-4000-8000-0000000000a1",
+      "name": "Sticky: MCP",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Look up n8n product knowledge, ICP/sales playbooks, and competitive positioning. Input: one focused query string. Use it to answer questions about how n8n helps a prospect.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "5dmOdqHgaCS2UukW",
+          "cachedResultName": "Tool: KB lookup (n8n knowledge)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI('query', 'A focused question about n8n value, capabilities, or fit', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "f0000000-0000-4000-8000-000000000006",
+      "name": "n8n knowledge",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Send a drafted email through human approval (async). Only call after the user has confirmed they want to send. Inputs: 'subject' and 'body' of the email. It emails an approval request to the team and sends the email ONLY once a human approves; returns a queued confirmation immediately (it does not wait).",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "zW2yChcLVAozeSgh",
+          "cachedResultName": "Outreach — Queue Send (async)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "subject": "={{ $fromAI('subject', 'The subject line of the drafted email', 'string') }}",
+            "body": "={{ $fromAI('body', 'The full body of the drafted email', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "f0000000-0000-4000-8000-000000000007",
+      "name": "Send for approval",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        224
+      ]
+    }
+  ],
+  "connections": {
+    "Research company": {
+      "ai_tool": [
+        [
+          {
+            "node": "Outreach MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enriched brief": {
+      "ai_tool": [
+        [
+          {
+            "node": "Outreach MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze ICP fit": {
+      "ai_tool": [
+        [
+          {
+            "node": "Outreach MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft outreach email": {
+      "ai_tool": [
+        [
+          {
+            "node": "Outreach MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n knowledge": {
+      "ai_tool": [
+        [
+          {
+            "node": "Outreach MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send for approval": {
+      "ai_tool": [
+        [
+          {
+            "node": "Outreach MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "binaryMode": "separate"
+  },
+  "triggerCount": 1,
+  "versionId": "21ec2cd8-4e66-4746-93d5-9a0337521d37",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": "flYDbuk91AeKVa0h",
+  "isArchived": false,
+  "nodeGroups": []
+}

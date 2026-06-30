@@ -1,0 +1,273 @@
+{
+  "id": "Qh568dUZQnepqMLA",
+  "name": "Outreach — Demo (E2E + induced error)",
+  "nodes": [
+    {
+      "id": "d0000000-0000-4000-8000-0000000000a1",
+      "name": "Sticky: Demo",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        -160
+      ],
+      "parameters": {
+        "content": "## Outreach — Demo (E2E + induced error)\n\nPOST to the webhook with a JSON body:\n- `{\"company\":\"Acme Robotics\"}` → happy path: runs Research + KB RAG, returns the enriched brief.\n- `{\"company\":\"Acme Robotics\",\"induceError\":true}` → runs research, then Stop&Error fires → the catch-all Error Handler emails an alert.\n\nError Workflow is set to **Outreach — Error Handler (catch-all)** in Settings.\nResponse mode is onReceived (fire-and-inspect via executions)."
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000001",
+      "name": "Demo Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "outreach-demo",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "ed594d0d-2cb5-426b-a3ce-1f7724e059d3"
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000002",
+      "name": "Sample Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -100,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sl1",
+              "name": "company",
+              "value": "={{ ($json.body || {}).company || 'Acme Robotics' }}",
+              "type": "string"
+            },
+            {
+              "id": "sl2",
+              "name": "induceError",
+              "value": "={{ (($json.body || {}).induceError === true) ? 'true' : 'false' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000003",
+      "name": "Build Enriched Brief",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        140,
+        0
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "a7Uf3Xk2kyn2YzBr",
+          "mode": "list",
+          "cachedResultName": "Tool: Enriched Brief (RAG)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company": "={{ $('Sample Lead').item.json.company }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000006",
+      "name": "Demo Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        120
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dr1",
+              "name": "status",
+              "value": "ok",
+              "type": "string"
+            },
+            {
+              "id": "dr2",
+              "name": "company",
+              "value": "={{ $json.company }}",
+              "type": "string"
+            },
+            {
+              "id": "dr3",
+              "name": "tier",
+              "value": "={{ $json.tier }}",
+              "type": "string"
+            },
+            {
+              "id": "dr4",
+              "name": "automation_readiness_score",
+              "value": "={{ $json.automation_readiness_score }}",
+              "type": "number"
+            },
+            {
+              "id": "dr5",
+              "name": "kb_matches",
+              "value": "={{ $json.kb_matches }}",
+              "type": "number"
+            },
+            {
+              "id": "dr6",
+              "name": "enriched_brief",
+              "value": "={{ $json.enriched_brief }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000004",
+      "name": "Induce error?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ie1",
+              "leftValue": "={{ $('Sample Lead').item.json.induceError }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000005",
+      "name": "Induce Error",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -120
+      ],
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "=Demo: induced failure for {{ $('Sample Lead').item.json.company }} to verify the catch-all error handler fires."
+      }
+    }
+  ],
+  "connections": {
+    "Demo Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sample Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample Lead": {
+      "main": [
+        [
+          {
+            "node": "Build Enriched Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Enriched Brief": {
+      "main": [
+        [
+          {
+            "node": "Induce error?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Induce error?": {
+      "main": [
+        [
+          {
+            "node": "Induce Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Demo Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "zyp7cVplnCezN8OF"
+  },
+  "triggerCount": 1,
+  "versionId": "6b1aa8ab-e8a4-4b59-bcb9-213537c8ca93",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": "isUNima2tvEuPZbZ",
+  "isArchived": true,
+  "nodeGroups": []
+}

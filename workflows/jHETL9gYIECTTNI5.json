@@ -11,7 +11,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        0,
+        -96,
         0
       ],
       "id": "21036623-e348-4cea-954a-09507f59c9cb",
@@ -50,18 +50,26 @@
           "name": "Self Host"
         }
       }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -48,
+        144
+      ],
+      "id": "8fc38879-3112-41e4-9f01-1c48b5c6a393",
+      "name": "When chat message received",
+      "webhookId": "bf1b767d-18a0-47c9-9ace-4d97c3e4795f"
     }
   ],
   "connections": {
     "Webhook": {
       "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Ollama Chat Model": {
@@ -74,15 +82,34 @@
           }
         ]
       ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
   },
   "triggerCount": 0,
-  "versionId": "0fe2e1e6-a42c-4ae5-96fe-b5b418176dcf",
+  "versionId": "b3ca0cd1-c862-4a9a-ae86-4c4ea2cba1aa",
   "owner": {
     "type": "team",
     "teamId": "LDZbeEPHll7aysDT",

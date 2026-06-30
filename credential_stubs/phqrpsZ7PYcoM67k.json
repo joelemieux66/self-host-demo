@@ -1,0 +1,14 @@
+{
+  "id": "phqrpsZ7PYcoM67k",
+  "name": "Outreach MCP Bearer",
+  "type": "httpBearerAuth",
+  "data": {
+    "token": ""
+  },
+  "ownedBy": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "isGlobal": false
+}

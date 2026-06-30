@@ -1,0 +1,150 @@
+{
+  "id": "DBFOlscXU4Zvv3kl",
+  "name": "KB: Add document",
+  "nodes": [
+    {
+      "id": "ba100000-0000-4000-8000-000000000001",
+      "name": "Upload document",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "formTitle": "Add to Outreach Knowledge Base",
+        "formDescription": "Upload a white paper, one-pager, or any document to add it to the outreach knowledge base (Pinecone).",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Document",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf,.txt,.docx,.md,.csv",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Source label",
+              "fieldType": "text",
+              "requiredField": false
+            }
+          ]
+        }
+      },
+      "webhookId": "7a5dbfd3-9478-41db-b167-f32713495a5e"
+    },
+    {
+      "id": "ba100000-0000-4000-8000-000000000002",
+      "name": "Add to KB",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "outreach-kb",
+          "cachedResultName": "outreach-kb"
+        },
+        "options": {
+          "pineconeNamespace": "research-docs"
+        }
+      },
+      "credentials": {
+        "pineconeApi": {
+          "id": "bdIGPcclXfSxFgf7",
+          "name": "Pinecone"
+        }
+      }
+    },
+    {
+      "id": "ba100000-0000-4000-8000-000000000003",
+      "name": "Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        220
+      ],
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "KBLGEFMAR7Y26lSV",
+          "name": "Personal"
+        }
+      }
+    },
+    {
+      "id": "ba100000-0000-4000-8000-000000000004",
+      "name": "Doc Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        340,
+        220
+      ],
+      "parameters": {
+        "dataType": "binary",
+        "binaryMode": "allInputData",
+        "loader": "auto",
+        "textSplittingMode": "simple"
+      }
+    }
+  ],
+  "connections": {
+    "Upload document": {
+      "main": [
+        [
+          {
+            "node": "Add to KB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Add to KB",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Doc Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Add to KB",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "zyp7cVplnCezN8OF"
+  },
+  "triggerCount": 1,
+  "versionId": "7caf7af4-dc33-47f9-a79d-302281dbb6d7",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": "TX0DoU7f1TCMqeY0",
+  "isArchived": true,
+  "nodeGroups": []
+}

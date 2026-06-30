@@ -1,0 +1,141 @@
+{
+  "id": "phM0daIPJdKz4hyz",
+  "name": "Tool: Research (async kickoff)",
+  "nodes": [
+    {
+      "id": "k0000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "company"
+            },
+            {
+              "name": "sessionId"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "k0000000-0000-4000-8000-000000000002",
+      "name": "Start brief",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "a7Uf3Xk2kyn2YzBr",
+          "cachedResultName": "Tool: Enriched Brief (RAG)"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": false
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company": "={{ $json.company }}",
+            "sessionId": "={{ $json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      }
+    },
+    {
+      "id": "k0000000-0000-4000-8000-000000000003",
+      "name": "Ack",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ack1",
+              "name": "response",
+              "value": "=Research for {{ $('Workflow Input').item.json.company }} has started. The full brief is being generated now — I'll email it to you within about a minute, and it will be ready here too. Meanwhile, who would you like to reach out to? Share their name and role and I'll draft the outreach as soon as the brief is ready.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Workflow Input": {
+      "main": [
+        [
+          {
+            "node": "Start brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start brief": {
+      "main": [
+        [
+          {
+            "node": "Ack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "callerPolicy": "any"
+  },
+  "triggerCount": 0,
+  "versionId": "ff3962ce-461a-45f2-8944-a134817def23",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": "HEcrJqQ0CssZz19u",
+  "isArchived": false,
+  "nodeGroups": []
+}

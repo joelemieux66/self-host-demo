@@ -1,0 +1,588 @@
+{
+  "id": "a7Uf3Xk2kyn2YzBr",
+  "name": "Tool: Enriched Brief (RAG)",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "company"
+            },
+            {
+              "name": "sessionId"
+            }
+          ]
+        }
+      },
+      "id": "e0000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "9nZwA876coN3qR5x",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/9nZwA876coN3qR5x",
+          "cachedResultName": "Onboarding - SDR Agent — Research Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company": "={{ $json.company }}",
+            "context": "Enriched brief request"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "e0000000-0000-4000-8000-000000000002",
+      "name": "Run Research",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "e0000000-0000-4000-8000-000000000004",
+      "name": "KB Query Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        352
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "KBLGEFMAR7Y26lSV",
+          "name": "Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "id": "e0000000-0000-4000-8000-000000000006",
+      "name": "Merge research + KB",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        768,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const NL = String.fromCharCode(10);\nconst company = $('Workflow Input').item.json.company || 'the company';\nconst merged = $('Merge research + KB').item.json;\nconst research = merged.research || '';\nconst extract = (arr) => (Array.isArray(arr) ? arr : []).map(d => (d && ((d.document && d.document.pageContent) || d.pageContent)) || '').filter(Boolean);\nconst kbN8n = extract(merged.kb_n8n);\n\nlet a = {};\ntry { a = JSON.parse(String($input.first().json.text || '').split('```json').join('').split('```').join('').trim()); } catch (e) { a = {}; }\nconst hasScore = typeof a.score === 'number' && isFinite(a.score);\nconst score = hasScore ? Math.max(0, Math.min(100, Math.round(a.score))) : null;\nconst tier = a.tier || (score == null ? 'N/A' : (score >= 80 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : 'D'));\nconst signals = Array.isArray(a.signals) ? a.signals : [];\nconst opportunities = Array.isArray(a.opportunities) ? a.opportunities : [];\nconst rationale = a.rationale || '';\n\nconst parts = [];\nparts.push('# Prospect Brief: ' + company);\nparts.push('');\nparts.push('**Automation-readiness score:** ' + (score == null ? 'N/A' : (score + '/100')) + ' (Tier ' + tier + ')');\nparts.push('');\nparts.push('## Research');\nparts.push(research || 'No research available.');\nparts.push('');\nparts.push('## Automation-Readiness Assessment');\nif (rationale) { parts.push(rationale); parts.push(''); }\nif (signals.length) { parts.push('**Why ' + company + ' fits n8n**'); signals.forEach(s => parts.push('- ' + s)); parts.push(''); }\nif (opportunities.length) { parts.push('**Where n8n could help ' + company + '**'); opportunities.forEach(s => parts.push('- ' + s)); parts.push(''); }\nconst brief = parts.join(NL);\n\nreturn [{ json: { company, automation_readiness_score: score, tier, kb_matches: kbN8n.length, enriched_brief: brief } }];"
+      },
+      "id": "e0000000-0000-4000-8000-000000000007",
+      "name": "Assemble Brief",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "id": "e0000000-0000-4000-8000-0000000000c1",
+      "name": "Report model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        304
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "KBLGEFMAR7Y26lSV",
+          "name": "Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Rewrite the following prospect brief so it is grammatically flawless and reads as a polished, professional sales report with smooth, natural flow. The company is a PROSPECT (a potential n8n customer) — keep that framing; never describe it as a tool inside n8n. Preserve ALL facts and figures, the automation-readiness score line, every section heading that has content (Research, Automation-Readiness Assessment), the rationale, the why-they-fit points, the automation opportunities, and all bullet points. Do not invent anything or add new claims. Omit any heading or section that has no content beneath it. Output the raw markdown directly — do NOT wrap it in code fences or triple backticks. Return ONLY the cleaned-up markdown.\n\n{{ $json.enriched_brief }}",
+        "batching": {}
+      },
+      "id": "e0000000-0000-4000-8000-0000000000c2",
+      "name": "Polish report",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1408,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rb1",
+              "name": "company",
+              "value": "={{ $('Assemble Brief').item.json.company }}",
+              "type": "string"
+            },
+            {
+              "id": "rb2",
+              "name": "automation_readiness_score",
+              "value": "={{ $('Assemble Brief').item.json.automation_readiness_score }}",
+              "type": "number"
+            },
+            {
+              "id": "rb3",
+              "name": "tier",
+              "value": "={{ $('Assemble Brief').item.json.tier }}",
+              "type": "string"
+            },
+            {
+              "id": "rb4",
+              "name": "kb_matches",
+              "value": "={{ $('Assemble Brief').item.json.kb_matches }}",
+              "type": "number"
+            },
+            {
+              "id": "rb5",
+              "name": "enriched_brief",
+              "value": "={{ ($json.text || '').split('```markdown').join('').split('```').join('').trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e0000000-0000-4000-8000-0000000000c3",
+      "name": "Return",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1696,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "outreach-kb",
+          "cachedResultName": "outreach-kb"
+        },
+        "prompt": "=How n8n's automation, integrations, AI, reliability and value vs legacy iPaaS apply to {{ $('Workflow Input').item.json.company }}",
+        "options": {
+          "pineconeNamespace": "n8n-knowledge"
+        }
+      },
+      "id": "e0000000-0000-4000-8000-0000000000d1",
+      "name": "KB n8n",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        160
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "bdIGPcclXfSxFgf7",
+          "name": "Pinecone"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "kb_n8n",
+        "options": {}
+      },
+      "id": "e0000000-0000-4000-8000-0000000000d2",
+      "name": "Pack n8n",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        512,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a B2B sales analyst for n8n, a workflow-automation and integration platform. The company below is a PROSPECT — a potential CUSTOMER for n8n. Assess how strongly this prospect's business would benefit from adopting n8n to automate their OWN internal operations. Do NOT describe or rate the prospect's own products, and never treat the prospect as a tool or integration inside n8n. Score realistically, but recognize that mid-size-to-large technology and SaaS companies with engineering teams are usually strong fits.\n\nProspect: {{ $('Workflow Input').item.json.company }}\n\nWeb research:\n{{ $('Merge research + KB').item.json.research }}\n\nHow n8n creates value (reference only, to ground opportunities):\n{{ ($('Merge research + KB').item.json.kb_n8n || []).map(d => (d.document && d.document.pageContent) || d.pageContent || '').filter(Boolean).join(' / ') }}\n\nScore 0-100 with this rubric (award partial credit; do NOT penalize for facts the research did not mention):\n- Scale: employees, revenue, market presence (larger and growing scores higher).\n- Technical teams: engineering, IT, platform, data, RevOps, or ops functions.\n- Tool and system sprawl: many SaaS apps, internal systems, or APIs to connect.\n- Process surface: manual, repetitive, or integration-heavy internal workflows.\n- Momentum: growth, hiring, funding, M&A, scaling, or AI/automation initiatives.\n- Data and API intensity: API-driven or data-heavy operations.\n\nTiers: A = 80-100, B = 60-79, C = 40-59, D = 0-39. A large, growing, technically sophisticated prospect should land in A or B even when the research is brief.\n\nFor 'opportunities', list concrete INTERNAL workflows that the prospect's OWN teams (RevOps, sales ops, marketing ops, IT, engineering, support, finance, data, onboarding) could automate with n8n — phrase each as something n8n would do FOR the prospect. Do not list the prospect's product features.\n\nReturn ONLY a JSON object (no code fences, no prose) with exactly these keys: score (integer 0-100), tier (\"A\" | \"B\" | \"C\" | \"D\"), signals (array of short strings explaining why the prospect fits n8n's ICP), opportunities (array of 3-5 concrete internal n8n automations for the prospect), rationale (2-3 sentence justification of the score).",
+        "batching": {}
+      },
+      "id": "e0000000-0000-4000-8000-0000000000e1",
+      "name": "Assess fit",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        976,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $('Return').item.json.enriched_brief }}",
+        "destinationKey": "html",
+        "options": {
+          "openLinksInNewWindow": true,
+          "simplifiedAutoLink": true
+        }
+      },
+      "id": "e0000000-0000-4000-8000-0000000000f1",
+      "name": "Brief to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        1856,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "joe.lemieux@n8n.io",
+        "subject": "=Research brief: {{ $('Return').item.json.company }}",
+        "message": "=<div style='font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.55; color: #1a1a1a; max-width: 640px'>{{ $('Brief to HTML').item.json.html }}</div>",
+        "options": {},
+        "resource": "message",
+        "operation": "send"
+      },
+      "id": "e0000000-0000-4000-8000-0000000000f2",
+      "name": "Email brief",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2016,
+        80
+      ],
+      "webhookId": "f9cbd473-5113-421a-b0b0-bf36bbd30020",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wFPLCtotR4QOuSRy",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ob1",
+              "name": "company",
+              "value": "={{ $('Return').item.json.company }}",
+              "type": "string"
+            },
+            {
+              "id": "ob2",
+              "name": "automation_readiness_score",
+              "value": "={{ $('Return').item.json.automation_readiness_score }}",
+              "type": "number"
+            },
+            {
+              "id": "ob3",
+              "name": "tier",
+              "value": "={{ $('Return').item.json.tier }}",
+              "type": "string"
+            },
+            {
+              "id": "ob4",
+              "name": "enriched_brief",
+              "value": "={{ $('Return').item.json.enriched_brief }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e0000000-0000-4000-8000-0000000000f3",
+      "name": "Output brief",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2160,
+        80
+      ]
+    },
+    {
+      "id": "e0000000-0000-4000-8000-0000000000aa",
+      "name": "Save brief",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2320,
+        80
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3TaWfTQGg0FqyUKs",
+          "cachedResultName": "session_research"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sessionId",
+              "condition": "eq",
+              "keyValue": "={{ $('Workflow Input').item.json.sessionId }}"
+            },
+            {
+              "keyName": "companyKey",
+              "condition": "eq",
+              "keyValue": "={{ ($('Return').item.json.company || '').toString().toLowerCase().trim() }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('Workflow Input').item.json.sessionId }}",
+            "company": "={{ $('Return').item.json.company }}",
+            "companyKey": "={{ ($('Return').item.json.company || '').toString().toLowerCase().trim() }}",
+            "brief": "={{ $('Output brief').item.json.enriched_brief }}"
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Workflow Input": {
+      "main": [
+        [
+          {
+            "node": "Run Research",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "KB n8n",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Research": {
+      "main": [
+        [
+          {
+            "node": "Merge research + KB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble Brief": {
+      "main": [
+        [
+          {
+            "node": "Polish report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Polish report",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Assess fit",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Polish report": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KB Query Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "KB n8n",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KB n8n": {
+      "main": [
+        [
+          {
+            "node": "Pack n8n",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pack n8n": {
+      "main": [
+        [
+          {
+            "node": "Merge research + KB",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge research + KB": {
+      "main": [
+        [
+          {
+            "node": "Assess fit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assess fit": {
+      "main": [
+        [
+          {
+            "node": "Assemble Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return": {
+      "main": [
+        [
+          {
+            "node": "Brief to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brief to HTML": {
+      "main": [
+        [
+          {
+            "node": "Email brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email brief": {
+      "main": [
+        [
+          {
+            "node": "Output brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output brief": {
+      "main": [
+        [
+          {
+            "node": "Save brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "any",
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "binaryMode": "separate"
+  },
+  "triggerCount": 0,
+  "versionId": "d5df0151-6b83-4df3-a808-e8dbbce2ebea",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": "HEcrJqQ0CssZz19u",
+  "isArchived": false,
+  "nodeGroups": []
+}

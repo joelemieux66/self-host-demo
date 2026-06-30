@@ -1,0 +1,208 @@
+{
+  "id": "zW2yChcLVAozeSgh",
+  "name": "Outreach — Queue Send (async)",
+  "nodes": [
+    {
+      "id": "e2000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "subject"
+            },
+            {
+              "name": "body"
+            },
+            {
+              "name": "company"
+            },
+            {
+              "name": "contact_name"
+            },
+            {
+              "name": "contact_role"
+            },
+            {
+              "name": "to_email"
+            },
+            {
+              "name": "session_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e2000000-0000-4000-8000-000000000002",
+      "name": "Queue worker",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "lfZEWcH7DSl63EbU",
+          "mode": "list",
+          "cachedResultName": "Outreach — Approve & Send (async worker)"
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "subject": "={{ $('Workflow Input').item.json.subject }}",
+            "body": "={{ $('Workflow Input').item.json.body }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      }
+    },
+    {
+      "id": "e2000000-0000-4000-8000-000000000003",
+      "name": "Return",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "q1",
+              "name": "status",
+              "value": "Queued for approval. An approval email has been sent to the inbox; the email goes out once approved.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "e2000000-0000-4000-8000-0000000000s1",
+      "name": "Seed outreach log",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        120,
+        180
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HLjnYGPCMOiUUKAE",
+          "cachedResultName": "outreach_log"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $('Workflow Input').item.json.to_email || 'joe.lemieux@n8n.io' }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $('Workflow Input').item.json.to_email || 'joe.lemieux@n8n.io' }}",
+            "company": "={{ $('Workflow Input').item.json.company }}",
+            "contactName": "={{ $('Workflow Input').item.json.contact_name }}",
+            "contactRole": "={{ $('Workflow Input').item.json.contact_role }}",
+            "sessionId": "={{ $('Workflow Input').item.json.session_id }}",
+            "lastSubject": "={{ $('Workflow Input').item.json.subject }}",
+            "step": "={{ 0 }}",
+            "status": "active",
+            "nextActionAt": "={{ $now.plus({ minutes: 5 }).toISO() }}"
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Queue worker": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Input": {
+      "main": [
+        [
+          {
+            "node": "Seed outreach log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seed outreach log": {
+      "main": [
+        [
+          {
+            "node": "Queue worker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "zyp7cVplnCezN8OF"
+  },
+  "triggerCount": 0,
+  "versionId": "be72fe1d-991c-4585-bf1f-30b9f920e38c",
+  "owner": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "parentFolderId": "HEcrJqQ0CssZz19u",
+  "isArchived": false,
+  "nodeGroups": []
+}
