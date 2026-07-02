@@ -3,6 +3,7 @@
   "name": "Outreach — Error Handler (catch-all)",
   "nodes": [
     {
+      "parameters": {},
       "id": "aa000000-0000-4000-8000-000000000001",
       "name": "On workflow error",
       "type": "n8n-nodes-base.errorTrigger",
@@ -10,50 +11,47 @@
       "position": [
         0,
         0
-      ],
-      "parameters": {}
+      ]
     },
     {
-      "id": "aa000000-0000-4000-8000-000000000002",
-      "name": "Email alert",
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.2,
-      "position": [
-        260,
-        0
-      ],
       "parameters": {
-        "resource": "message",
-        "operation": "send",
         "sendTo": "joe.lemieux@n8n.io",
         "subject": "=⚠️ n8n failure: {{ $json.workflow.name }} — {{ $json.execution.lastNodeExecuted }}",
         "emailType": "text",
         "message": "=A workflow execution failed.\n\nWorkflow: {{ $json.workflow.name }} ({{ $json.workflow.id }})\nFailed node: {{ $json.execution.lastNodeExecuted }}\nError: {{ $json.execution.error && $json.execution.error.message ? $json.execution.error.message : 'unknown' }}\nMode: {{ $json.execution.mode }}\nExecution: {{ $json.execution.url }}",
         "options": {}
       },
+      "id": "aa000000-0000-4000-8000-000000000002",
+      "name": "Email alert",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        272,
+        0
+      ],
+      "webhookId": "22f3b7b3-1e97-4df3-b053-d0fc4872c6aa",
       "credentials": {
         "gmailOAuth2": {
           "id": "wFPLCtotR4QOuSRy",
           "name": "Gmail"
         }
-      },
-      "webhookId": "22f3b7b3-1e97-4df3-b053-d0fc4872c6aa"
+      }
     },
     {
+      "parameters": {
+        "content": "## Catch-all error handler\nFires when ANY workflow that names this as its Error Workflow throws an unhandled error. Emails the failure (workflow, failed node, message, execution link) to joe.lemieux@n8n.io.",
+        "height": 404,
+        "width": 520,
+        "color": 3
+      },
       "id": "aa000000-0000-4000-8000-0000000000a1",
       "name": "Sticky: Error handler",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        -220
-      ],
-      "parameters": {
-        "width": 520,
-        "height": 180,
-        "color": 3,
-        "content": "## Catch-all error handler\nFires when ANY workflow that names this as its Error Workflow throws an unhandled error. Emails the failure (workflow, failed node, message, execution link) to joe.lemieux@n8n.io.\n\n**Assign it (UI only):** in each outreach workflow → Settings → Error Workflow → select this. Or set it as the instance default."
-      }
+        -48,
+        -224
+      ]
     }
   ],
   "connections": {
@@ -70,10 +68,11 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "fb269cfb-9003-4eed-a9b2-5a5f3d7236b4",
+  "versionId": "b05918f7-587d-4f5d-8d8f-cbbe60cbf57b",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

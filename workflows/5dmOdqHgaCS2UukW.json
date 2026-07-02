@@ -82,6 +82,22 @@
         480,
         0
       ]
+    },
+    {
+      "parameters": {
+        "content": "### n8n knowledge base lookup\nEmbeds the incoming query and searches the Pinecone vector store for relevant n8n knowledge, then packs the matches into a compact result for the calling agent.",
+        "height": 544,
+        "width": 760,
+        "color": 5
+      },
+      "id": "bee9e355-e3c4-42e4-bf66-0b7c740c25f7",
+      "name": "Sticky: KB lookup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -176
+      ]
     }
   ],
   "connections": {
@@ -126,7 +142,7 @@
     "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "46becf74-1a54-4467-9dc3-1cfc98f09965",
+  "versionId": "d7f0c9d5-e5f8-4657-9912-f1435667f9d7",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

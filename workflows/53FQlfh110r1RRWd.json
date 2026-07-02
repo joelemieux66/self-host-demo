@@ -3,14 +3,6 @@
   "name": "Tool: Bubble up (manual)",
   "nodes": [
     {
-      "id": "bu000000-0000-4000-8000-000000000001",
-      "name": "Workflow Input",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        0,
-        0
-      ],
       "parameters": {
         "workflowInputs": {
           "values": [
@@ -19,19 +11,18 @@
             }
           ]
         }
-      }
+      },
+      "id": "bu000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -96,
+        0
+      ]
     },
     {
-      "id": "bu000000-0000-4000-8000-000000000002",
-      "name": "Get rows",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        220,
-        0
-      ],
       "parameters": {
-        "resource": "row",
         "operation": "get",
         "dataTableId": {
           "__rl": true,
@@ -40,30 +31,30 @@
           "cachedResultName": "outreach_log"
         },
         "returnAll": true
-      }
+      },
+      "id": "bu000000-0000-4000-8000-000000000002",
+      "name": "Get rows",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        0
+      ]
     },
     {
+      "parameters": {
+        "jsCode": "const q = (($('Workflow Input').first().json.prospect) || '').toString().toLowerCase().trim();\nconst rows = $input.all().map(i => i.json);\nconst hit = rows.find(r => String(r.contactName||'').toLowerCase().includes(q) || String(r.company||'').toLowerCase().includes(q) || String(r.email||'').toLowerCase().includes(q));\nreturn [{ json: hit ? Object.assign({ found: true }, hit) : { found: false, prospect: q } }];"
+      },
       "id": "bu000000-0000-4000-8000-000000000003",
       "name": "Match prospect",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        440,
+        368,
         0
-      ],
-      "parameters": {
-        "jsCode": "const q = (($('Workflow Input').first().json.prospect) || '').toString().toLowerCase().trim();\nconst rows = $input.all().map(i => i.json);\nconst hit = rows.find(r => String(r.contactName||'').toLowerCase().includes(q) || String(r.company||'').toLowerCase().includes(q) || String(r.email||'').toLowerCase().includes(q));\nreturn [{ json: hit ? Object.assign({ found: true }, hit) : { found: false, prospect: q } }];"
-      }
+      ]
     },
     {
-      "id": "bu000000-0000-4000-8000-000000000004",
-      "name": "Found?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        660,
-        0
-      ],
       "parameters": {
         "conditions": {
           "options": {
@@ -87,17 +78,17 @@
           ]
         },
         "options": {}
-      }
+      },
+      "id": "bu000000-0000-4000-8000-000000000004",
+      "name": "Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        560,
+        0
+      ]
     },
     {
-      "id": "bu000000-0000-4000-8000-000000000007",
-      "name": "Return ok",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1320,
-        -120
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -110,17 +101,17 @@
           ]
         },
         "options": {}
-      }
-    },
-    {
-      "id": "bu000000-0000-4000-8000-000000000008",
-      "name": "Return notfound",
+      },
+      "id": "bu000000-0000-4000-8000-000000000007",
+      "name": "Return ok",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        880,
-        120
-      ],
+        1488,
+        -208
+      ]
+    },
+    {
       "parameters": {
         "assignments": {
           "assignments": [
@@ -133,52 +124,49 @@
           ]
         },
         "options": {}
-      }
+      },
+      "id": "bu000000-0000-4000-8000-000000000008",
+      "name": "Return notfound",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        80
+      ]
     },
     {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1,
+        "filters": {
+          "q": "={{ 'subject:\"' + ($('Match prospect').item.json.lastSubject || '') + '\"' }}"
+        }
+      },
       "id": "bu000000-0000-4000-8000-000000000009",
       "name": "Find thread",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
         880,
-        -120
+        -128
       ],
-      "parameters": {
-        "resource": "message",
-        "operation": "getAll",
-        "returnAll": false,
-        "limit": 1,
-        "simple": true,
-        "filters": {
-          "q": "={{ 'subject:\"' + ($('Match prospect').item.json.lastSubject || '') + '\"' }}"
-        }
-      },
+      "alwaysOutputData": true,
+      "webhookId": "c1c45a36-6476-4023-b45c-d10843d77520",
       "credentials": {
         "gmailOAuth2": {
           "id": "wFPLCtotR4QOuSRy",
           "name": "Gmail"
         }
-      },
-      "alwaysOutputData": true,
-      "webhookId": "c1c45a36-6476-4023-b45c-d10843d77520"
+      }
     },
     {
-      "id": "bu000000-0000-4000-8000-00000000000a",
-      "name": "Found thread?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        1080,
-        -120
-      ],
       "parameters": {
         "conditions": {
           "options": {
-            "version": 2,
-            "leftValue": "",
             "caseSensitive": true,
-            "typeValidation": "loose"
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
           },
           "combinator": "and",
           "conditions": [
@@ -195,42 +183,41 @@
           ]
         },
         "options": {}
-      }
+      },
+      "id": "bu000000-0000-4000-8000-00000000000a",
+      "name": "Found thread?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1088,
+        -128
+      ]
     },
     {
-      "id": "bu000000-0000-4000-8000-00000000000b",
-      "name": "Reply on thread",
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.2,
-      "position": [
-        1300,
-        -200
-      ],
       "parameters": {
-        "resource": "message",
         "operation": "reply",
         "messageId": "={{ $('Find thread').item.json.id }}",
         "emailType": "text",
         "message": "=Hi {{ ($('Match prospect').item.json.contactName || 'there').split(' ')[0] }},\n\nJust floating this back to the top of your inbox in case it slipped by - would a quick 15-minute call be worth exploring? Happy to work around your calendar.\n\nBest,\nJoe Lemieux\nSolutions Engineer, n8n",
         "options": {}
       },
+      "id": "bu000000-0000-4000-8000-00000000000b",
+      "name": "Reply on thread",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        -208
+      ],
+      "webhookId": "9d3097f4-74bb-4208-81d7-29b78745731f",
       "credentials": {
         "gmailOAuth2": {
           "id": "wFPLCtotR4QOuSRy",
           "name": "Gmail"
         }
-      },
-      "webhookId": "9d3097f4-74bb-4208-81d7-29b78745731f"
+      }
     },
     {
-      "id": "bu000000-0000-4000-8000-00000000000c",
-      "name": "Return nothread",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1300,
-        -20
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -243,7 +230,47 @@
           ]
         },
         "options": {}
-      }
+      },
+      "id": "bu000000-0000-4000-8000-00000000000c",
+      "name": "Return nothread",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Look up & match prospect\nReads Data Table rows and matches the incoming prospect, branching on whether a record was found.",
+        "height": 304,
+        "width": 940,
+        "color": 7
+      },
+      "id": "9fe5d358-25c8-41dc-8639-c24c3818f103",
+      "name": "Sticky: Match prospect",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Find thread & reply\nFinds the existing Gmail thread and replies on it, returning ok/notfound/nothread status back to the caller.",
+        "height": 560,
+        "width": 976,
+        "color": 6
+      },
+      "id": "5f5836bc-ae7a-4f30-b26a-781d93f61ab0",
+      "name": "Sticky: Reply on thread",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        816,
+        -320
+      ]
     }
   ],
   "connections": {
@@ -342,10 +369,11 @@
   "settings": {
     "executionOrder": "v1",
     "errorWorkflow": "zyp7cVplnCezN8OF",
-    "callerPolicy": "any"
+    "callerPolicy": "any",
+    "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "b9ed4c73-d92f-4b85-91f7-b0b806225cb3",
+  "versionId": "1e32f839-cf71-4173-813c-bc12b32e424b",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

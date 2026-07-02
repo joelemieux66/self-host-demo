@@ -1,0 +1,14 @@
+{
+  "id": "h5IKDcSylrorF6yw",
+  "name": "Custom Auth account",
+  "type": "httpCustomAuth",
+  "data": {
+    "json": ""
+  },
+  "ownedBy": {
+    "type": "team",
+    "teamId": "FGee2Rffy5CZODVa",
+    "teamName": "Onboarding - SDR Assistant"
+  },
+  "isGlobal": false
+}

@@ -3,14 +3,6 @@
   "name": "Tool: Show brief",
   "nodes": [
     {
-      "id": "sb000000-0000-4000-8000-000000000001",
-      "name": "Workflow Input",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        0,
-        0
-      ],
       "parameters": {
         "workflowInputs": {
           "values": [
@@ -22,20 +14,18 @@
             }
           ]
         }
-      }
+      },
+      "id": "sb000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        16
+      ]
     },
     {
-      "id": "sb000000-0000-4000-8000-000000000002",
-      "name": "Get brief",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        220,
-        0
-      ],
-      "alwaysOutputData": true,
       "parameters": {
-        "resource": "row",
         "operation": "get",
         "dataTableId": {
           "__rl": true,
@@ -48,29 +38,27 @@
           "conditions": [
             {
               "keyName": "sessionId",
-              "condition": "eq",
               "keyValue": "={{ $('Workflow Input').item.json.sessionId }}"
             },
             {
               "keyName": "companyKey",
-              "condition": "eq",
               "keyValue": "={{ ($('Workflow Input').item.json.company || '').toString().toLowerCase().trim() }}"
             }
           ]
         },
-        "returnAll": false,
         "limit": 1
-      }
+      },
+      "id": "sb000000-0000-4000-8000-000000000002",
+      "name": "Get brief",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        16
+      ],
+      "alwaysOutputData": true
     },
     {
-      "id": "sb000000-0000-4000-8000-000000000003",
-      "name": "Return",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        440,
-        0
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -83,7 +71,31 @@
           ]
         },
         "options": {}
-      }
+      },
+      "id": "sb000000-0000-4000-8000-000000000003",
+      "name": "Return",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Retrieve stored brief\nLooks up the previously generated research brief from the Data Table by its id and returns it to the calling agent.",
+        "height": 288,
+        "width": 720,
+        "color": 7
+      },
+      "id": "daba96ea-a18e-4287-b361-13bc82744d1f",
+      "name": "Sticky: Show brief",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -128
+      ]
     }
   ],
   "connections": {
@@ -113,10 +125,11 @@
   "settings": {
     "executionOrder": "v1",
     "errorWorkflow": "zyp7cVplnCezN8OF",
-    "callerPolicy": "any"
+    "callerPolicy": "any",
+    "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "648724fd-ce3d-4181-ae97-4dfb5a5d7a1e",
+  "versionId": "af7a8c19-2a94-438e-81bc-e7f0f94bc60c",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

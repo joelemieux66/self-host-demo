@@ -252,7 +252,7 @@
     },
     {
       "parameters": {
-        "content": "## Outreach MCP Server\nExposes the outreach specialists as MCP tools at the MCP Server Trigger endpoint (path: `outreach`). Any MCP client (Claude, another n8n agent via MCP Client Tool, etc.) can call: research_company, enriched_brief, analyze_icp_fit, draft_outreach_email.\n\n**Production:** switch the trigger's Authentication to **Bearer Auth** and add a credential before exposing externally.",
+        "content": "## Outreach MCP Server\nExposes the outreach specialists as MCP tools at the MCP Server Trigger endpoint (path: `outreach`). Any MCP client (Claude, another n8n agent via MCP Client Tool, etc.) can call: research_company, enriched_brief, analyze_icp_fit, draft_outreach_email, n8n_knowledge, send_for_approval.\n\n**Production:** switch the trigger's Authentication to **Bearer Auth** and add a credential before exposing externally.",
         "width": 760,
         "color": 5
       },
@@ -349,6 +349,22 @@
         1120,
         224
       ]
+    },
+    {
+      "id": "2646641e-fbb5-4a52-b1d8-dfa64be5d09f",
+      "name": "Sticky: Tool suite",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        104
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1400,
+        "height": 240,
+        "content": "### Outreach tool suite\nSub-workflow tools exposed via MCP: research, enrich, ICP fit, draft email, n8n knowledge, and send for approval."
+      }
     }
   ],
   "connections": {
@@ -425,7 +441,7 @@
     "binaryMode": "separate"
   },
   "triggerCount": 1,
-  "versionId": "21ec2cd8-4e66-4746-93d5-9a0337521d37",
+  "versionId": "7e876dd3-caa4-44ed-b458-ab17251d99ed",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

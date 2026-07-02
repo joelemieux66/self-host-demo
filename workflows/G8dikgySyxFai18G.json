@@ -3,6 +3,7 @@
   "name": "KB: Seed n8n knowledge",
   "nodes": [
     {
+      "parameters": {},
       "id": "ca100000-0000-4000-8000-000000000001",
       "name": "Run seed",
       "type": "n8n-nodes-base.manualTrigger",
@@ -10,32 +11,22 @@
       "position": [
         0,
         0
-      ],
-      "parameters": {}
+      ]
     },
     {
+      "parameters": {
+        "jsCode": "const docs = [\n  // ── n8n product knowledge ──\n  { source: 'Product: integrations', text: 'n8n connects 500+ apps and any REST/HTTP or GraphQL API. It orchestrates data between CRMs (Salesforce, HubSpot), ERPs (NetSuite, SAP), and databases (Postgres, MySQL, SQL Server, MongoDB), and reaches internal/on-prem systems via the HTTP Request node so even tools without a prebuilt node are integrable.' },\n  { source: 'Product: reliability', text: 'n8n provides per-node error handling, automatic retries with backoff, dedicated error workflows, and full execution history with input/output inspection. Integrations fail loudly and recover gracefully instead of breaking silently.' },\n  { source: 'Product: AI', text: 'n8n has native AI: AI Agent nodes with tools and memory, RAG over vector stores (Pinecone, Qdrant, PGVector), text classifiers, information extractors, and LLM chains. Teams build agentic automations beside traditional integrations on one canvas.' },\n  { source: 'Product: deployment', text: 'n8n runs as cloud or self-hosted (Docker, Kubernetes). Self-hosting lets workflows run behind the firewall to reach on-prem systems, keeps data in your environment, and supports queue mode with workers for horizontal scaling.' },\n  { source: 'Product: developer experience', text: 'n8n blends a visual canvas with code: Code nodes (JavaScript/Python), inline expressions, and reusable sub-workflows. Engineers get version-controllable, code-level control without rebuilding everything from scratch.' },\n  { source: 'Product: security & governance', text: 'n8n Enterprise adds SSO/SAML, role-based access control, environments, external secrets, audit logs, and variables, so automation can be governed centrally while teams self-serve.' },\n  { source: 'Product: scaling', text: 'For high volume, n8n queue mode separates the main process from workers using Redis, enabling concurrent executions, horizontal scaling, and resilience to traffic spikes.' },\n\n  // ── ICP / sales playbook ──\n  { source: 'ICP', text: 'Ideal Customer Profile for n8n: mid-market to enterprise companies (roughly 100+ employees) with technical teams (engineering, IT, ops, RevOps), multiple SaaS tools that need to be connected, and manual, repetitive processes ripe for automation. Growth, M&A, or operational-scaling signals increase fit.' },\n  { source: 'Playbook: discovery questions', text: 'Strong discovery questions: Which processes still rely on manual handoffs or spreadsheets? Which tools do not talk to each other today? Where do integration failures cause the most pain? Who owns automation, and is it build, buy, or both?' },\n  { source: 'Playbook: buying signals', text: 'Buying signals: hiring automation/integration/RevOps roles, adopting new SaaS quickly, public mentions of scaling or efficiency initiatives, AI/agent projects, migrating off a legacy iPaaS, or frustration with Zapier/Make limits at scale.' },\n  { source: 'Playbook: personas & value', text: 'Value by persona - RevOps: reliable CRM/data sync and fewer manual workarounds. IT/Platform: governed, secure, self-hostable automation. Engineering leaders: code-level control without maintaining glue scripts. Ops: hours saved on repetitive tasks.' },\n  { source: 'Playbook: objection handling', text: 'Common objections - \"We use Zapier/Make\": n8n adds code-level control, self-hosting, and lower cost at scale. \"We will build in-house\": n8n removes boilerplate and maintenance burden while keeping flexibility. \"Security\": self-host behind the firewall with RBAC and audit logs.' },\n  { source: 'Competitive: vs iPaaS', text: 'Versus legacy iPaaS (Boomi, MuleSoft, Workato): n8n is faster to build in, far more cost-effective, source-available, and gives engineers code-level control on a visual canvas, cutting reactive firefighting and manual workarounds.' },\n  { source: 'Competitive: vs no-code', text: 'Versus Zapier/Make: n8n offers self-hosting, no per-task pricing surprises, native code and AI, and the HTTP node for any API, making it better suited to technical teams and complex, high-volume workflows.' },\n\n  // ── Outreach guidance ──\n  { source: 'Outreach tone', text: 'Winning outreach to technical buyers is concise, references a specific real signal about their company, leads with a concrete automation outcome, avoids buzzwords, and ends with a single low-friction CTA.' },\n  { source: 'Outreach structure', text: 'A good cold email: 1) one-line hook tied to a company-specific signal, 2) the problem it implies, 3) a concrete n8n outcome with a brief proof point, 4) a soft CTA such as \"worth a quick look?\". Keep it under ~120 words.' },\n\n  // ── Sample case studies (illustrative only) ──\n  { source: 'Case study (illustrative): RevOps lead-to-CRM', text: 'Illustrative example, not a real customer: a B2B SaaS RevOps team used n8n to sync enriched leads from forms and intent tools into Salesforce, dedupe them, and route to reps, cutting manual data entry and reducing lead response time from hours to minutes.' },\n  { source: 'Case study (illustrative): IT on-prem integration', text: 'Illustrative example, not a real customer: an enterprise IT team self-hosted n8n to connect an on-prem ERP with cloud SaaS via HTTP nodes, replacing brittle scripts with monitored workflows and error alerts, improving reliability and visibility.' },\n  { source: 'Case study (illustrative): AI support triage', text: 'Illustrative example, not a real customer: a support org built an n8n AI agent that classifies inbound tickets, retrieves answers from a knowledge base via RAG, drafts replies, and escalates edge cases to humans, deflecting routine tickets while keeping a human in the loop.' },\n  { source: 'Case study (illustrative): finance reconciliation', text: 'Illustrative example, not a real customer: a finance team automated invoice and payment reconciliation across their ERP and a bank API with n8n, using retries and an error workflow to catch failures, saving days of manual matching each month.' },\n\n  // ── Outreach playbooks (persona / vertical / competitor / sequence) ──\n  { source: 'Playbook: RevOps / Sales Ops persona', text: 'Emailing a RevOps or Sales Ops leader: lead with lead-to-CRM data hygiene and routing - enriching inbound leads, deduping, syncing across CRM and marketing tools, and cutting manual entry. Proof point: lead response time from hours to minutes. CTA: a 15-minute look at their lead flow.' },\n  { source: 'Playbook: IT / Platform / DevOps persona', text: 'Emailing IT, Platform, or DevOps leaders: lead with governed, self-hostable automation behind the firewall (RBAC, audit logs, secrets) connecting on-prem and cloud via HTTP. Proof point: replacing brittle scripts with monitored workflows and alerts. CTA: a short architecture chat.' },\n  { source: 'Playbook: Engineering leader persona', text: 'Emailing an Engineering leader (VP Eng, Head of Platform): lead with code-level control on a visual canvas - stop maintaining glue scripts, build versionable reusable workflows, native code and AI. Proof point: engineering hours reclaimed from integration upkeep. CTA: a technical demo.' },\n  { source: 'Playbook: Founder / CEO persona', text: 'Emailing a founder or CEO at a smaller company: lead with leverage - automate repetitive ops so a lean team does more without new headcount. Keep it outcome-focused (hours saved, faster execution) and jargon-free. CTA: a quick call to find the biggest time sink.' },\n  { source: 'Playbook: Operations / BizOps persona', text: 'Emailing Operations or BizOps: lead with eliminating manual cross-tool processes such as onboarding, approvals, and reporting. Proof point: hours saved per week on a specific workflow. CTA: map one painful process together.' },\n  { source: 'Playbook: Marketing Ops persona', text: 'Emailing Marketing Ops: lead with syncing campaign and lead data across marketing automation, CRM, and ad platforms in real time, plus automated routing and reporting. Proof point: accurate, agile reporting without manual exports. CTA: a look at their martech stack.' },\n  { source: 'Playbook: SaaS / tech vertical', text: 'SaaS and tech prospects: emphasize connecting many internal tools and APIs, automating customer onboarding and provisioning, usage analytics, and support triage. They value developer control and self-hosting. Reference their scale and integration breadth.' },\n  { source: 'Playbook: Fintech / financial services vertical', text: 'Fintech and financial-services prospects: emphasize secure self-hosted automation behind the firewall, auditability and compliance, and reconciliation and data-sync workflows across systems. Lead with control and reliability over speed.' },\n  { source: 'Playbook: E-commerce / retail vertical', text: 'E-commerce and retail prospects: emphasize order, inventory, and fulfillment data sync across storefronts, ERPs, and 3PLs, plus automated customer communications. Proof point: fewer manual reconciliations and faster order handling.' },\n  { source: 'Playbook: Healthcare vertical', text: 'Healthcare prospects: emphasize secure on-prem or self-hosted automation, integrating legacy systems via HTTP, and reducing manual data handling under compliance constraints. Lead with security, control, and reliability.' },\n  { source: 'Battlecard: vs Zapier', text: 'Versus Zapier: n8n adds self-hosting, code-level control, native AI, no per-task pricing surprises, and the HTTP node for any API. Best for technical teams and complex, high-volume, or on-prem workflows Zapier struggles with at scale.' },\n  { source: 'Battlecard: vs Make', text: 'Versus Make: n8n offers self-hosting, real code (JavaScript and Python) via Code nodes, source-availability, and a stronger fit for engineering-led teams that need version control and on-prem reach.' },\n  { source: 'Battlecard: vs legacy iPaaS (Workato, MuleSoft, Boomi)', text: 'Versus legacy iPaaS: n8n is far more cost-effective, faster to build in, source-available, and gives engineers control on a visual canvas - cutting the cost, services dependency, and slow change cycles of heavyweight iPaaS.' },\n  { source: 'Sequence: first-touch email', text: 'First-touch: a one-line hook tied to a specific company signal, the implied problem, a concrete n8n outcome with a brief proof point, and one soft CTA. Under about 120 words, plain confident tone, no buzzwords.' },\n  { source: 'Sequence: follow-up bump', text: 'Follow-up one (3 to 4 days later): short, reference the first email, add one new angle or proof point, and restate the low-friction CTA. Two to four sentences maximum.' },\n  { source: 'Sequence: breakup email', text: 'Breakup email (after two or three touches): brief, no guilt, leave the door open by assuming the timing is not right and offering to reconnect later. Often prompts a reply.' }\n];\nreturn docs.map((d) => ({ json: { text: d.text, source: d.source }, pairedItem: { item: 0 } }));"
+      },
       "id": "ca100000-0000-4000-8000-000000000002",
       "name": "KB Docs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        220,
+        224,
         0
-      ],
-      "parameters": {
-        "language": "javaScript",
-        "jsCode": "const docs = [\n  // ── n8n product knowledge ──\n  { source: 'Product: integrations', text: 'n8n connects 500+ apps and any REST/HTTP or GraphQL API. It orchestrates data between CRMs (Salesforce, HubSpot), ERPs (NetSuite, SAP), and databases (Postgres, MySQL, SQL Server, MongoDB), and reaches internal/on-prem systems via the HTTP Request node so even tools without a prebuilt node are integrable.' },\n  { source: 'Product: reliability', text: 'n8n provides per-node error handling, automatic retries with backoff, dedicated error workflows, and full execution history with input/output inspection. Integrations fail loudly and recover gracefully instead of breaking silently.' },\n  { source: 'Product: AI', text: 'n8n has native AI: AI Agent nodes with tools and memory, RAG over vector stores (Pinecone, Qdrant, PGVector), text classifiers, information extractors, and LLM chains. Teams build agentic automations beside traditional integrations on one canvas.' },\n  { source: 'Product: deployment', text: 'n8n runs as cloud or self-hosted (Docker, Kubernetes). Self-hosting lets workflows run behind the firewall to reach on-prem systems, keeps data in your environment, and supports queue mode with workers for horizontal scaling.' },\n  { source: 'Product: developer experience', text: 'n8n blends a visual canvas with code: Code nodes (JavaScript/Python), inline expressions, and reusable sub-workflows. Engineers get version-controllable, code-level control without rebuilding everything from scratch.' },\n  { source: 'Product: security & governance', text: 'n8n Enterprise adds SSO/SAML, role-based access control, environments, external secrets, audit logs, and variables, so automation can be governed centrally while teams self-serve.' },\n  { source: 'Product: scaling', text: 'For high volume, n8n queue mode separates the main process from workers using Redis, enabling concurrent executions, horizontal scaling, and resilience to traffic spikes.' },\n\n  // ── ICP / sales playbook ──\n  { source: 'ICP', text: 'Ideal Customer Profile for n8n: mid-market to enterprise companies (roughly 100+ employees) with technical teams (engineering, IT, ops, RevOps), multiple SaaS tools that need to be connected, and manual, repetitive processes ripe for automation. Growth, M&A, or operational-scaling signals increase fit.' },\n  { source: 'Playbook: discovery questions', text: 'Strong discovery questions: Which processes still rely on manual handoffs or spreadsheets? Which tools do not talk to each other today? Where do integration failures cause the most pain? Who owns automation, and is it build, buy, or both?' },\n  { source: 'Playbook: buying signals', text: 'Buying signals: hiring automation/integration/RevOps roles, adopting new SaaS quickly, public mentions of scaling or efficiency initiatives, AI/agent projects, migrating off a legacy iPaaS, or frustration with Zapier/Make limits at scale.' },\n  { source: 'Playbook: personas & value', text: 'Value by persona - RevOps: reliable CRM/data sync and fewer manual workarounds. IT/Platform: governed, secure, self-hostable automation. Engineering leaders: code-level control without maintaining glue scripts. Ops: hours saved on repetitive tasks.' },\n  { source: 'Playbook: objection handling', text: 'Common objections - \"We use Zapier/Make\": n8n adds code-level control, self-hosting, and lower cost at scale. \"We will build in-house\": n8n removes boilerplate and maintenance burden while keeping flexibility. \"Security\": self-host behind the firewall with RBAC and audit logs.' },\n  { source: 'Competitive: vs iPaaS', text: 'Versus legacy iPaaS (Boomi, MuleSoft, Workato): n8n is faster to build in, far more cost-effective, source-available, and gives engineers code-level control on a visual canvas, cutting reactive firefighting and manual workarounds.' },\n  { source: 'Competitive: vs no-code', text: 'Versus Zapier/Make: n8n offers self-hosting, no per-task pricing surprises, native code and AI, and the HTTP node for any API, making it better suited to technical teams and complex, high-volume workflows.' },\n\n  // ── Outreach guidance ──\n  { source: 'Outreach tone', text: 'Winning outreach to technical buyers is concise, references a specific real signal about their company, leads with a concrete automation outcome, avoids buzzwords, and ends with a single low-friction CTA.' },\n  { source: 'Outreach structure', text: 'A good cold email: 1) one-line hook tied to a company-specific signal, 2) the problem it implies, 3) a concrete n8n outcome with a brief proof point, 4) a soft CTA such as \"worth a quick look?\". Keep it under ~120 words.' },\n\n  // ── Sample case studies (illustrative only) ──\n  { source: 'Case study (illustrative): RevOps lead-to-CRM', text: 'Illustrative example, not a real customer: a B2B SaaS RevOps team used n8n to sync enriched leads from forms and intent tools into Salesforce, dedupe them, and route to reps, cutting manual data entry and reducing lead response time from hours to minutes.' },\n  { source: 'Case study (illustrative): IT on-prem integration', text: 'Illustrative example, not a real customer: an enterprise IT team self-hosted n8n to connect an on-prem ERP with cloud SaaS via HTTP nodes, replacing brittle scripts with monitored workflows and error alerts, improving reliability and visibility.' },\n  { source: 'Case study (illustrative): AI support triage', text: 'Illustrative example, not a real customer: a support org built an n8n AI agent that classifies inbound tickets, retrieves answers from a knowledge base via RAG, drafts replies, and escalates edge cases to humans, deflecting routine tickets while keeping a human in the loop.' },\n  { source: 'Case study (illustrative): finance reconciliation', text: 'Illustrative example, not a real customer: a finance team automated invoice and payment reconciliation across their ERP and a bank API with n8n, using retries and an error workflow to catch failures, saving days of manual matching each month.' },\n\n  // ── Outreach playbooks (persona / vertical / competitor / sequence) ──\n  { source: 'Playbook: RevOps / Sales Ops persona', text: 'Emailing a RevOps or Sales Ops leader: lead with lead-to-CRM data hygiene and routing - enriching inbound leads, deduping, syncing across CRM and marketing tools, and cutting manual entry. Proof point: lead response time from hours to minutes. CTA: a 15-minute look at their lead flow.' },\n  { source: 'Playbook: IT / Platform / DevOps persona', text: 'Emailing IT, Platform, or DevOps leaders: lead with governed, self-hostable automation behind the firewall (RBAC, audit logs, secrets) connecting on-prem and cloud via HTTP. Proof point: replacing brittle scripts with monitored workflows and alerts. CTA: a short architecture chat.' },\n  { source: 'Playbook: Engineering leader persona', text: 'Emailing an Engineering leader (VP Eng, Head of Platform): lead with code-level control on a visual canvas - stop maintaining glue scripts, build versionable reusable workflows, native code and AI. Proof point: engineering hours reclaimed from integration upkeep. CTA: a technical demo.' },\n  { source: 'Playbook: Founder / CEO persona', text: 'Emailing a founder or CEO at a smaller company: lead with leverage - automate repetitive ops so a lean team does more without new headcount. Keep it outcome-focused (hours saved, faster execution) and jargon-free. CTA: a quick call to find the biggest time sink.' },\n  { source: 'Playbook: Operations / BizOps persona', text: 'Emailing Operations or BizOps: lead with eliminating manual cross-tool processes such as onboarding, approvals, and reporting. Proof point: hours saved per week on a specific workflow. CTA: map one painful process together.' },\n  { source: 'Playbook: Marketing Ops persona', text: 'Emailing Marketing Ops: lead with syncing campaign and lead data across marketing automation, CRM, and ad platforms in real time, plus automated routing and reporting. Proof point: accurate, agile reporting without manual exports. CTA: a look at their martech stack.' },\n  { source: 'Playbook: SaaS / tech vertical', text: 'SaaS and tech prospects: emphasize connecting many internal tools and APIs, automating customer onboarding and provisioning, usage analytics, and support triage. They value developer control and self-hosting. Reference their scale and integration breadth.' },\n  { source: 'Playbook: Fintech / financial services vertical', text: 'Fintech and financial-services prospects: emphasize secure self-hosted automation behind the firewall, auditability and compliance, and reconciliation and data-sync workflows across systems. Lead with control and reliability over speed.' },\n  { source: 'Playbook: E-commerce / retail vertical', text: 'E-commerce and retail prospects: emphasize order, inventory, and fulfillment data sync across storefronts, ERPs, and 3PLs, plus automated customer communications. Proof point: fewer manual reconciliations and faster order handling.' },\n  { source: 'Playbook: Healthcare vertical', text: 'Healthcare prospects: emphasize secure on-prem or self-hosted automation, integrating legacy systems via HTTP, and reducing manual data handling under compliance constraints. Lead with security, control, and reliability.' },\n  { source: 'Battlecard: vs Zapier', text: 'Versus Zapier: n8n adds self-hosting, code-level control, native AI, no per-task pricing surprises, and the HTTP node for any API. Best for technical teams and complex, high-volume, or on-prem workflows Zapier struggles with at scale.' },\n  { source: 'Battlecard: vs Make', text: 'Versus Make: n8n offers self-hosting, real code (JavaScript and Python) via Code nodes, source-availability, and a stronger fit for engineering-led teams that need version control and on-prem reach.' },\n  { source: 'Battlecard: vs legacy iPaaS (Workato, MuleSoft, Boomi)', text: 'Versus legacy iPaaS: n8n is far more cost-effective, faster to build in, source-available, and gives engineers control on a visual canvas - cutting the cost, services dependency, and slow change cycles of heavyweight iPaaS.' },\n  { source: 'Sequence: first-touch email', text: 'First-touch: a one-line hook tied to a specific company signal, the implied problem, a concrete n8n outcome with a brief proof point, and one soft CTA. Under about 120 words, plain confident tone, no buzzwords.' },\n  { source: 'Sequence: follow-up bump', text: 'Follow-up one (3 to 4 days later): short, reference the first email, add one new angle or proof point, and restate the low-friction CTA. Two to four sentences maximum.' },\n  { source: 'Sequence: breakup email', text: 'Breakup email (after two or three touches): brief, no guilt, leave the door open by assuming the timing is not right and offering to reconnect later. Often prompts a reply.' }\n];\nreturn docs.map((d) => ({ json: { text: d.text, source: d.source }, pairedItem: { item: 0 } }));"
-      }
+      ]
     },
     {
-      "id": "ca100000-0000-4000-8000-000000000003",
-      "name": "Seed n8n KB",
-      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
-      "typeVersion": 1.3,
-      "position": [
-        520,
-        0
-      ],
       "parameters": {
         "mode": "insert",
         "pineconeIndex": {
@@ -45,10 +36,18 @@
           "cachedResultName": "outreach-kb"
         },
         "options": {
-          "pineconeNamespace": "n8n-knowledge",
-          "clearNamespace": true
+          "clearNamespace": true,
+          "pineconeNamespace": "n8n-knowledge"
         }
       },
+      "id": "ca100000-0000-4000-8000-000000000003",
+      "name": "Seed n8n KB",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        0
+      ],
       "credentials": {
         "pineconeApi": {
           "id": "bdIGPcclXfSxFgf7",
@@ -57,18 +56,17 @@
       }
     },
     {
+      "parameters": {
+        "options": {}
+      },
       "id": "ca100000-0000-4000-8000-000000000004",
       "name": "Embeddings",
       "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
       "typeVersion": 1.2,
       "position": [
-        440,
-        220
+        448,
+        224
       ],
-      "parameters": {
-        "model": "text-embedding-3-small",
-        "options": {}
-      },
       "credentials": {
         "openAiApi": {
           "id": "KBLGEFMAR7Y26lSV",
@@ -77,20 +75,51 @@
       }
     },
     {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.text }}",
+        "options": {}
+      },
       "id": "ca100000-0000-4000-8000-000000000005",
       "name": "Docs Loader",
       "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
       "typeVersion": 1.1,
       "position": [
-        600,
-        220
-      ],
+        608,
+        224
+      ]
+    },
+    {
       "parameters": {
-        "dataType": "json",
-        "jsonMode": "expressionData",
-        "jsonData": "={{ $json.text }}",
-        "textSplittingMode": "simple"
-      }
+        "content": "### Prepare docs\nManual trigger kicks off the seed run, and the Code node builds the set of n8n knowledge documents to index.",
+        "height": 304,
+        "width": 440,
+        "color": 4
+      },
+      "id": "afd01aef-94f0-44ad-8fd0-1c99ef07d310",
+      "name": "Sticky: Prepare docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Embed & store\nSplits and embeds the documents with OpenAI embeddings and upserts the vectors into the Pinecone knowledge base.",
+        "height": 492,
+        "width": 440,
+        "color": 5
+      },
+      "id": "68a70fb1-be43-4056-86b0-b83b61396993",
+      "name": "Sticky: Embed & store",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -144
+      ]
     }
   ],
   "connections": {
@@ -141,10 +170,11 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "errorWorkflow": "zyp7cVplnCezN8OF"
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "binaryMode": "separate"
   },
   "triggerCount": 1,
-  "versionId": "0d98037d-c12c-4e57-94f6-91ac3a3b3038",
+  "versionId": "41c1c396-107d-414a-958c-6db3e4693cbd",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

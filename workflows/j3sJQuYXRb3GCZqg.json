@@ -74,7 +74,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        544,
+        640,
         0
       ]
     },
@@ -138,6 +138,54 @@
         416,
         224
       ]
+    },
+    {
+      "parameters": {
+        "content": "### Input\nEntry point invoked as a sub-workflow tool, passing the analysis request into the agent.",
+        "height": 320,
+        "width": 200,
+        "color": 4
+      },
+      "id": "056129f7-5377-40e7-a46e-8b6dbd737e15",
+      "name": "Sticky: Input",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Analyst reasoning\nThe Analyst Agent runs on the OpenAI chat model and can query the n8n knowledge base to ground its analysis.",
+        "height": 560,
+        "width": 356,
+        "color": 5
+      },
+      "id": "fa4a2f59-e1d7-4d51-8f0e-90e885c9ae0f",
+      "name": "Sticky: Analyst reasoning",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Output\nShapes the agent result into the return payload sent back to the caller.",
+        "height": 352,
+        "width": 280,
+        "color": 6
+      },
+      "id": "0ef4860b-f487-438d-ab05-b2b2bd008a29",
+      "name": "Sticky: Output",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -192
+      ]
     }
   ],
   "connections": {
@@ -193,7 +241,7 @@
     "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "66a0ad49-a3a6-44b6-a8de-947653a9430a",
+  "versionId": "d7ebabc2-52a2-4b9a-a285-921a8b358125",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

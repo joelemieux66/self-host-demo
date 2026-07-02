@@ -20,8 +20,8 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.2,
       "position": [
-        0,
-        0
+        -112,
+        32
       ]
     },
     {
@@ -39,7 +39,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        192,
+        224,
         192
       ],
       "credentials": {
@@ -74,8 +74,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        512,
-        0
+        656,
+        32
       ]
     },
     {
@@ -92,8 +92,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        192,
-        0
+        224,
+        32
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -135,8 +135,56 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        336,
+        368,
         192
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Input\nEntry point invoked as a sub-workflow tool, passing the research request into the agent.",
+        "height": 336,
+        "width": 296,
+        "color": 4
+      },
+      "id": "262d13a5-901a-425b-831b-c08a5efdb069",
+      "name": "Sticky: Input",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Research reasoning\nThe Research Agent runs on the OpenAI chat model and uses a web-search tool to gather external information.",
+        "height": 448,
+        "width": 356,
+        "color": 5
+      },
+      "id": "6b38a2ea-eac6-4a60-b728-c7ce46ab707d",
+      "name": "Sticky: Research reasoning",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Output\nShapes the agent findings into the return payload sent back to the caller.",
+        "height": 320,
+        "width": 312,
+        "color": 6
+      },
+      "id": "4439e4af-b900-4a2b-910c-365019bf2cfd",
+      "name": "Sticky: Output",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        544,
+        -128
       ]
     }
   ],
@@ -193,7 +241,7 @@
     "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "8d43a11c-7990-4ae4-998b-1f83a88e1070",
+  "versionId": "aebc34e1-3918-4cf5-9b77-52e8c3487b81",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

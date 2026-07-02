@@ -3,14 +3,6 @@
   "name": "Tool: Research (async kickoff)",
   "nodes": [
     {
-      "id": "k0000000-0000-4000-8000-000000000001",
-      "name": "Workflow Input",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        0,
-        0
-      ],
       "parameters": {
         "workflowInputs": {
           "values": [
@@ -22,28 +14,23 @@
             }
           ]
         }
-      }
+      },
+      "id": "k0000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        16
+      ]
     },
     {
-      "id": "k0000000-0000-4000-8000-000000000002",
-      "name": "Start brief",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
-      "position": [
-        240,
-        0
-      ],
       "parameters": {
-        "source": "database",
         "workflowId": {
           "__rl": true,
           "mode": "list",
           "value": "a7Uf3Xk2kyn2YzBr",
           "cachedResultName": "Tool: Enriched Brief (RAG)"
-        },
-        "mode": "once",
-        "options": {
-          "waitForSubWorkflow": false
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -72,18 +59,21 @@
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
         }
-      }
+      },
+      "id": "k0000000-0000-4000-8000-000000000002",
+      "name": "Start brief",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        16
+      ]
     },
     {
-      "id": "k0000000-0000-4000-8000-000000000003",
-      "name": "Ack",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        480,
-        0
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -96,7 +86,31 @@
           ]
         },
         "options": {}
-      }
+      },
+      "id": "k0000000-0000-4000-8000-000000000003",
+      "name": "Ack",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Async research kickoff\nStarts the brief-generation sub-workflow in the background and immediately returns an acknowledgement so the caller doesn't wait for the long-running research to finish.",
+        "height": 288,
+        "width": 760,
+        "color": 6
+      },
+      "id": "cb96e935-2b84-4aa7-922d-ee2944ba3b29",
+      "name": "Sticky: Research kickoff",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -128
+      ]
     }
   ],
   "connections": {
@@ -126,10 +140,11 @@
   "settings": {
     "executionOrder": "v1",
     "errorWorkflow": "zyp7cVplnCezN8OF",
-    "callerPolicy": "any"
+    "callerPolicy": "any",
+    "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "ff3962ce-461a-45f2-8944-a134817def23",
+  "versionId": "0e38a749-d598-43cc-9ff3-dbd52f23d0fa",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

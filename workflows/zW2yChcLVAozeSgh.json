@@ -3,14 +3,6 @@
   "name": "Outreach — Queue Send (async)",
   "nodes": [
     {
-      "id": "e2000000-0000-4000-8000-000000000001",
-      "name": "Workflow Input",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        0,
-        0
-      ],
       "parameters": {
         "workflowInputs": {
           "values": [
@@ -37,26 +29,23 @@
             }
           ]
         }
-      }
+      },
+      "id": "e2000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -128,
+        48
+      ]
     },
     {
-      "id": "e2000000-0000-4000-8000-000000000002",
-      "name": "Queue worker",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
-      "position": [
-        220,
-        0
-      ],
       "parameters": {
         "workflowId": {
           "__rl": true,
           "value": "lfZEWcH7DSl63EbU",
           "mode": "list",
           "cachedResultName": "Outreach — Approve & Send (async worker)"
-        },
-        "options": {
-          "waitForSubWorkflow": false
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -85,18 +74,21 @@
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
         }
-      }
+      },
+      "id": "e2000000-0000-4000-8000-000000000002",
+      "name": "Queue worker",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        48
+      ]
     },
     {
-      "id": "e2000000-0000-4000-8000-000000000003",
-      "name": "Return",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        440,
-        0
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -109,19 +101,18 @@
           ]
         },
         "options": {}
-      }
+      },
+      "id": "e2000000-0000-4000-8000-000000000003",
+      "name": "Return",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        48
+      ]
     },
     {
-      "id": "e2000000-0000-4000-8000-0000000000s1",
-      "name": "Seed outreach log",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        120,
-        180
-      ],
       "parameters": {
-        "resource": "row",
         "operation": "upsert",
         "dataTableId": {
           "__rl": true,
@@ -134,7 +125,6 @@
           "conditions": [
             {
               "keyName": "email",
-              "condition": "eq",
               "keyValue": "={{ $('Workflow Input').item.json.to_email || 'joe.lemieux@n8n.io' }}"
             }
           ]
@@ -151,9 +141,129 @@
             "step": "={{ 0 }}",
             "status": "active",
             "nextActionAt": "={{ $now.plus({ minutes: 5 }).toISO() }}"
-          }
-        }
-      }
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "contactName",
+              "displayName": "contactName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "contactRole",
+              "displayName": "contactRole",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lastSubject",
+              "displayName": "lastSubject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "step",
+              "displayName": "step",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "nextActionAt",
+              "displayName": "nextActionAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "e2000000-0000-4000-8000-0000000000s1",
+      "name": "Seed outreach log",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Async outreach send\nSeeds the outreach log for the incoming lead, then dispatches the send to the queue worker sub-workflow and returns immediately so the caller isn't blocked.",
+        "height": 420,
+        "width": 816,
+        "color": 6
+      },
+      "id": "29435c4f-781f-42af-b48b-36eeb8898fbc",
+      "name": "Sticky: Queue send",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -128
+      ]
     }
   ],
   "connections": {
@@ -193,10 +303,11 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "errorWorkflow": "zyp7cVplnCezN8OF"
+    "errorWorkflow": "zyp7cVplnCezN8OF",
+    "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "be72fe1d-991c-4585-bf1f-30b9f920e38c",
+  "versionId": "1ec0319a-2f2b-41f7-9040-a19c7f5f2ba7",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

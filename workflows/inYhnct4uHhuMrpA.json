@@ -3,14 +3,6 @@
   "name": "Tool: Web search (Tavily)",
   "nodes": [
     {
-      "id": "b1000000-0000-4000-8000-000000000001",
-      "name": "Workflow Input",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        0,
-        0
-      ],
       "parameters": {
         "workflowInputs": {
           "values": [
@@ -19,17 +11,17 @@
             }
           ]
         }
-      }
+      },
+      "id": "b1000000-0000-4000-8000-000000000001",
+      "name": "Workflow Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        16
+      ]
     },
     {
-      "id": "b1000000-0000-4000-8000-000000000002",
-      "name": "Tavily HTTP",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        220,
-        0
-      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.tavily.com/search",
@@ -40,6 +32,14 @@
         "jsonBody": "={{ JSON.stringify({ query: $json.query, search_depth: 'advanced', max_results: 6, include_answer: true }) }}",
         "options": {}
       },
+      "id": "b1000000-0000-4000-8000-000000000002",
+      "name": "Tavily HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        16
+      ],
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000,
@@ -51,14 +51,6 @@
       }
     },
     {
-      "id": "b1000000-0000-4000-8000-000000000003",
-      "name": "Return",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        440,
-        0
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -71,7 +63,31 @@
           ]
         },
         "options": {}
-      }
+      },
+      "id": "b1000000-0000-4000-8000-000000000003",
+      "name": "Return",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Web search via Tavily\nTakes a search query, calls the Tavily search API over HTTP, and returns the formatted results as a tool response for the agent.",
+        "height": 304,
+        "width": 720,
+        "color": 7
+      },
+      "id": "7230fc9c-ae38-4d18-8862-76c80cea9c5f",
+      "name": "Sticky: Web search",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -128
+      ]
     }
   ],
   "connections": {
@@ -101,10 +117,11 @@
   "settings": {
     "executionOrder": "v1",
     "errorWorkflow": "zyp7cVplnCezN8OF",
-    "callerPolicy": "any"
+    "callerPolicy": "any",
+    "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "443413cb-45c4-4db8-8236-d59353915a73",
+  "versionId": "044d7c41-ef62-425c-967f-43d36e1b4758",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",

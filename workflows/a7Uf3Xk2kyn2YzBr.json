@@ -20,8 +20,8 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.2,
       "position": [
-        0,
-        80
+        -128,
+        96
       ]
     },
     {
@@ -83,8 +83,8 @@
       "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
       "typeVersion": 1.2,
       "position": [
-        240,
-        352
+        256,
+        320
       ],
       "credentials": {
         "openAiApi": {
@@ -119,7 +119,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1264,
+        1328,
         80
       ]
     },
@@ -138,8 +138,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        1200,
-        304
+        1216,
+        272
       ],
       "credentials": {
         "openAiApi": {
@@ -159,7 +159,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        1408,
+        1520,
         80
       ]
     },
@@ -206,7 +206,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1696,
+        1840,
         80
       ]
     },
@@ -229,18 +229,18 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
       "typeVersion": 1.3,
       "position": [
-        240,
-        160
+        256,
+        128
       ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "credentials": {
         "pineconeApi": {
           "id": "bdIGPcclXfSxFgf7",
           "name": "Pinecone"
         }
       },
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 5000,
       "onError": "continueRegularOutput"
     },
     {
@@ -254,8 +254,8 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        512,
-        160
+        528,
+        128
       ]
     },
     {
@@ -288,7 +288,7 @@
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
       "position": [
-        1856,
+        2064,
         80
       ]
     },
@@ -297,16 +297,14 @@
         "sendTo": "joe.lemieux@n8n.io",
         "subject": "=Research brief: {{ $('Return').item.json.company }}",
         "message": "=<div style='font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.55; color: #1a1a1a; max-width: 640px'>{{ $('Brief to HTML').item.json.html }}</div>",
-        "options": {},
-        "resource": "message",
-        "operation": "send"
+        "options": {}
       },
       "id": "e0000000-0000-4000-8000-0000000000f2",
       "name": "Email brief",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        2016,
+        2224,
         80
       ],
       "webhookId": "f9cbd473-5113-421a-b0b0-bf36bbd30020",
@@ -354,21 +352,12 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2160,
+        2400,
         80
       ]
     },
     {
-      "id": "e0000000-0000-4000-8000-0000000000aa",
-      "name": "Save brief",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        2320,
-        80
-      ],
       "parameters": {
-        "resource": "row",
         "operation": "upsert",
         "dataTableId": {
           "__rl": true,
@@ -381,12 +370,10 @@
           "conditions": [
             {
               "keyName": "sessionId",
-              "condition": "eq",
               "keyValue": "={{ $('Workflow Input').item.json.sessionId }}"
             },
             {
               "keyName": "companyKey",
-              "condition": "eq",
               "keyValue": "={{ ($('Return').item.json.company || '').toString().toLowerCase().trim() }}"
             }
           ]
@@ -399,8 +386,97 @@
             "companyKey": "={{ ($('Return').item.json.company || '').toString().toLowerCase().trim() }}",
             "brief": "={{ $('Output brief').item.json.enriched_brief }}"
           }
-        }
-      }
+        },
+        "options": {}
+      },
+      "id": "e0000000-0000-4000-8000-0000000000aa",
+      "name": "Save brief",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2592,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Input\nExecute-workflow trigger. Receives the prospect / company context from the caller (the Research tool or Supervisor).",
+        "height": 368,
+        "width": 342,
+        "color": 4
+      },
+      "id": "beec6a99-a124-41fe-9e6a-d13e96ceaed6",
+      "name": "Sticky: Input",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Research + KB retrieval (RAG)\nRuns the Research sub-workflow and, in parallel, embeds the query and pulls matching n8n knowledge from the Pinecone vector store.",
+        "height": 720,
+        "width": 480,
+        "color": 5
+      },
+      "id": "b8c1ac79-a84e-4977-b0d2-0eb1eca9fde5",
+      "name": "Sticky: RAG retrieval",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Merge & assess fit\nCombines the research and KB context, then an LLM chain assesses product fit for the prospect.",
+        "height": 352,
+        "width": 552,
+        "color": 7
+      },
+      "id": "f79f3adc-8678-4a88-a4ec-03e940dd4304",
+      "name": "Sticky: Merge & assess",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        688,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Generate & polish brief\nAssembles the brief, polishes it with an LLM chain, and returns the finished text on the item.",
+        "height": 460,
+        "width": 732,
+        "color": 5
+      },
+      "id": "78167bfb-5795-43cc-a6fe-016b961799b9",
+      "name": "Sticky: Generate brief",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Deliver brief\nRenders the brief to HTML, emails it, returns it to the caller, and saves it to the Data Table.",
+        "height": 304,
+        "width": 720,
+        "color": 6
+      },
+      "id": "bc9a14d4-a078-48da-8d0e-fc43062a9020",
+      "name": "Sticky: Deliver brief",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2016,
+        -48
+      ]
     }
   ],
   "connections": {
@@ -576,7 +652,7 @@
     "binaryMode": "separate"
   },
   "triggerCount": 0,
-  "versionId": "d5df0151-6b83-4df3-a808-e8dbbce2ebea",
+  "versionId": "8e103db8-d55e-4f90-897b-a6e4a4e10b99",
   "owner": {
     "type": "team",
     "teamId": "FGee2Rffy5CZODVa",
